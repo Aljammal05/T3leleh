@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:t3leleh_v1/constans/constans.dart';
 
@@ -17,7 +18,7 @@ class AddPlace_Services {
       String category,
       ) async {
     try {
-      placesref.doc(userID + '-' + name + '-' + area).set({
+      placesref.doc(name + '-' + area).set({
         'ownerID':userID,
         'name': name,
         'description': description,
@@ -31,6 +32,9 @@ class AddPlace_Services {
         'phoneNo': phoneNo,
         'websiteURL': websiteURL,
         'placepicURL': placepicURL,
+      });
+      usersref.doc(userID).update({
+        'ownedplaces':FieldValue.arrayUnion([name+'-'+area])
       });
       return true;
     } catch (e) {

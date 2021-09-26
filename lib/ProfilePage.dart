@@ -364,7 +364,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                     Row(
                                         //todo
 
-                                         children:ownedplacesw,
+                                         children:ownedplacesw.reversed.toList(),
                                         )
                                   ],
                                 ),

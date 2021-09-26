@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class UserModel {
   String ID,name, email, password, phoneNO, city, userType, ProfilePicURL ;
-  List  ownedplaces=[];
+  List  ownedplaces=[],recentlyvisited=[],favoriteplaces=[];
   UserModel(
       {
         this.ID='',
@@ -14,6 +14,8 @@ class UserModel {
       this.userType='',
       this.ProfilePicURL='',
       this.ownedplaces=const[],
+        this.recentlyvisited=const[],
+        this.favoriteplaces=const[],
       });
   factory UserModel.fromdoc(DocumentSnapshot doc){
 return UserModel(
@@ -26,6 +28,8 @@ return UserModel(
   city: doc['city'],
   ProfilePicURL: doc['ProfilePicURL'],
   ownedplaces:doc['ownedplaces'],
+  recentlyvisited: doc['recentlyvisited'],
+  favoriteplaces: doc['favoriteplaces'],
 );
   }
 }

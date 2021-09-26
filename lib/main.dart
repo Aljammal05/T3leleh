@@ -19,7 +19,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: SafeArea(child:// AddPlace(LatLng(31.963158, 35.930359))),
-        ProfilePage(currentuserid: '8bWwS1DBijgvirpsgJUw8EBNH9m2',)),
+       // ProfilePage(currentuserid: '8bWwS1DBijgvirpsgJUw8EBNH9m2',)
+        WelcomePage()
+      ),
     );
   }
 }

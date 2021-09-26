@@ -5,9 +5,9 @@ import 'package:t3leleh_v1/DashboardPage.dart';
 import 'package:t3leleh_v1/OwnedPlacespage.dart';
 import 'package:t3leleh_v1/RecoveryPage.dart';
 import 'package:t3leleh_v1/RegisterPage.dart';
+import 'package:t3leleh_v1/Services/auth_service.dart';
 import 'package:t3leleh_v1/Tamplets/Templates.dart';
-import 'package:t3leleh_v1/Users/Users.dart';
-import 'package:t3leleh_v1/lists/Lists.dart';
+import 'package:t3leleh_v1/constans/constans.dart';
 class SignInPage extends StatefulWidget {
   @override
   _SignInPageState createState() => _SignInPageState();
@@ -55,47 +55,22 @@ class _SignInPageState extends State<SignInPage> {
             SizedBox(height: 140,),
             GestureDetector(
               onTap: () async {
-                try {
-                  await _auth.signInWithEmailAndPassword(
-                      email: email, password: password);
-                  User? logged = _auth.currentUser;
-                  if (logged != null) {
-                   /* if (logged.email.toString() == '3bood20003li@gmail.com')
-                      setState(() {
-                        userType = usertype.owner;
-                      });
-                    else
-                      setState(() {
-                        userType = usertype.user;
-                      });*/
-                    // for(int i=0;i<=userslist.length;i++){
-                    //   if(logged.email.toString()==userslist[i].useremail){
-                    //     setState(() {
-                    //       userType=userslist[i].type;
-                    //     });
-                    //     Navigator.push(context,
-                    //         MaterialPageRoute(builder: (context) {
-                    //           return SafeArea(
-                    //             child: userType == usertype.user
-                    //                 ? DashboardPage()
-                    //                 : OwnedPlacesPage(),
-                    //           );
-                    //         }));
-                    //   }
-                    //
-                    // }
-                    /*Navigator.push(context,
-                        MaterialPageRoute(builder: (context) {
-                      return SafeArea(
-                        child: userType == usertype.user
-                            ? DashboardPage()
-                            : OwnedPlacesPage(),
-                      );
-                    }));*/
-                  }
-                } catch (e) {
-                  print(e);
-                }
+                bool isvalid =await auth_service.signIn(email, password);
+                String currentuserid;
+                currentuserid=await _auth.currentUser!.uid;
+              var db=  await usersref.doc(currentuserid).get();
+                 if (isvalid) {
+                     Navigator.push(context,
+                         MaterialPageRoute(builder: (context) {
+                           return SafeArea(
+                             child: db['userType']=='user'
+                                 ? DashboardPage()
+                                 :db['userType']=='owner'? OwnedPlacesPage():Container(),
+                           );
+                         }));
+                 } else {
+                   print('something wrong');
+                 }
               },
               child: LinearColorBottom(
                 'LOGIN',
