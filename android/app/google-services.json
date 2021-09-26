@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "92262174267",
+    "project_id": "t3leleh",
+    "storage_bucket": "t3leleh.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:92262174267:android:5a0026af4b9ce511fc561e",
+        "android_client_info": {
+          "package_name": "com.scoopydoo.t3leleh_v1"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "92262174267-u0nplbmfveahjdne0j5avs68qk2obihd.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBhPqldoCT1ILsGRHuzYmC_QSqVv4xYtJ8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "92262174267-u0nplbmfveahjdne0j5avs68qk2obihd.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
