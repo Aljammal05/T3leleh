@@ -542,21 +542,21 @@ class _PlaceWidgetState extends State<PlaceWidget> {
                         children: [
                           userType == usertype.user
                               ? GestureDetector(
-                                  onTap: () {
-                                    setState(() {
-                                      if (false) {
-                                      } else {}
-                                    });
-                                  },
-                                  child: Icon(
-                                    //todo
-                                    true
-                                        ? Icons.favorite
-                                        : Icons.favorite_border,
-                                    color: Colors.white,
-                                    size: 27,
-                                  ),
-                                )
+                            onTap: () {
+                              setState(() {
+                                if (false) {
+                                } else {}
+                              });
+                            },
+                            child: Icon(
+                              //todo
+                              true
+                                  ? Icons.favorite
+                                  : Icons.favorite_border,
+                              color: Colors.white,
+                              size: 27,
+                            ),
+                          )
                               : Container(),
                         ],
                       ),
@@ -565,12 +565,12 @@ class _PlaceWidgetState extends State<PlaceWidget> {
                           setState(() {
                             Navigator.push(context,
                                 MaterialPageRoute(builder: (context) {
-                              return SafeArea(
-                                  child: /*userType==usertype.user?*/ PlaceMainPage(
-                                currentplaceID: widget.currentplaceID,
-                              ) //todo:EditPlace(),
+                                  return SafeArea(
+                                      child: /*userType==usertype.user?*/ PlaceMainPage(
+                                        currentplaceID: widget.currentplaceID,
+                                      ) //todo:EditPlace(),
                                   );
-                            }));
+                                }));
                           });
                         },
                         child: SizedBox(
@@ -729,7 +729,7 @@ class _DropdownboxState extends State<Dropdownbox> {
               .toList(),
           onChanged: (val) {
             setState(
-              () {
+                  () {
                 salutation = val;
                 widget.fun(val);
               },
@@ -761,9 +761,9 @@ class ImageContainerStackTemplate extends StatelessWidget {
                 height: 390,
                 decoration: BoxDecoration(
                     image: DecorationImage(
-                  image: AssetImage('image/default.png'), //todo
-                  fit: BoxFit.fitWidth,
-                )),
+                      image: AssetImage('image/default.png'), //todo
+                      fit: BoxFit.fitWidth,
+                    )),
                 child: Container()),
           ),
           Positioned(
