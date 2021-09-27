@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:t3leleh_v1/AddPlace.dart';
+import 'package:t3leleh_v1/DashboardPage.dart';
 import 'package:t3leleh_v1/EditPlace.dart';
 import 'package:t3leleh_v1/OwnedPlacespage.dart';
 import 'package:t3leleh_v1/ProfilePage.dart';
@@ -20,7 +21,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       home: SafeArea(child:// AddPlace(LatLng(31.963158, 35.930359))),
        // ProfilePage(currentuserid: '8bWwS1DBijgvirpsgJUw8EBNH9m2',)
-        WelcomePage()
+        DashboardPage(currentuserid: '8bWwS1DBijgvirpsgJUw8EBNH9m2',)
       ),
     );
   }
