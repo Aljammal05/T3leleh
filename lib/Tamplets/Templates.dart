@@ -1,3 +1,4 @@
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -495,128 +496,125 @@ class _AnimatedToggleState extends State<AnimatedToggle> {
 }
 
 class PlaceWidget extends StatefulWidget {
-  PlaceWidget({this.currentplaceID = '', this.height = 190});
+  PlaceWidget({this.currentplaceID='',this.height=190});
   String currentplaceID;
   double height;
+
 
   @override
   _PlaceWidgetState createState() => _PlaceWidgetState();
 }
 
 class _PlaceWidgetState extends State<PlaceWidget> {
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-        future: placesref.doc(widget.currentplaceID).get(),
-        builder: (BuildContext context, AsyncSnapshot snapshot) {
-          if (!snapshot.hasData) {
-            return Center(
-              child: CircularProgressIndicator(
-                backgroundColor: Colors.black,
-                valueColor: AlwaysStoppedAnimation(Colors.white),
+      future: placesref.doc(widget.currentplaceID).get(),
+      builder: (BuildContext context,AsyncSnapshot snapshot){
+        if (!snapshot.hasData) {
+          return Center(
+            child: CircularProgressIndicator(
+              backgroundColor: Colors.black,
+              valueColor: AlwaysStoppedAnimation(Colors.white),
+            ),
+          );
+        }
+        PlaceModel placeModel=PlaceModel.fromdoc(snapshot.data);
+      return Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Container(
+            height: widget.height,//todo
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.all(Radius.circular(25)),
+              image: DecorationImage(
+                image: NetworkImage(placeModel.placepicURl),
+                colorFilter: new ColorFilter.mode(
+                    Colors.white.withOpacity(0.85), BlendMode.dstATop),
+                fit: BoxFit.cover,
               ),
-            );
-          }
-          PlaceModel placeModel = PlaceModel.fromdoc(snapshot.data);
-          return Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Container(
-                height: widget.height, //todo
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(25)),
-                  image: DecorationImage(
-                    image: NetworkImage(placeModel.placepicURl),
-                    colorFilter: new ColorFilter.mode(
-                        Colors.white.withOpacity(0.85), BlendMode.dstATop),
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          userType == usertype.user
-                              ? GestureDetector(
-                                  onTap: () {
-                                    setState(() {
-                                      if (false) {
-                                      } else {}
-                                    });
-                                  },
-                                  child: Icon(
-                                    //todo
-                                    true
-                                        ? Icons.favorite
-                                        : Icons.favorite_border,
-                                    color: Colors.white,
-                                    size: 27,
-                                  ),
-                                )
-                              : Container(),
-                        ],
-                      ),
-                      GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            Navigator.push(context,
-                                MaterialPageRoute(builder: (context) {
-                              return SafeArea(
-                                  child: /*userType==usertype.user?*/ PlaceMainPage(
-                                currentplaceID: widget.currentplaceID,
-                              ) //todo:EditPlace(),
-                                  );
-                            }));
-                          });
-                        },
-                        child: SizedBox(
-                          child: Container(
-                            color: Color(0x00ffffff),
-                            height: 90,
-                          ),
-                        ),
-                      ),
-                      Column(
-                        children: [
-                          Align(
-                            alignment: Alignment.bottomLeft,
-                            child: Text(
-                              placeModel.name,
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 20), //todo fontsize
-                            ),
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                placeModel.city +
-                                    ',' +
-                                    placeModel.area.substring(0, 5), //todo
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 20 - 6), //todo fontsize
-                              ),
-                              Icon(
-                                // widget.place.ratingicon,//todo
-                                FontAwesomeIcons.solidSmile,
+                      userType == usertype.user
+                          ? GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  if (false){
+                                  }else{
+
+                                  }
+                                });
+                              },
+                              child: Icon(
+                              //todo
+                                 true?  Icons.favorite:Icons.favorite_border ,
                                 color: Colors.white,
-                                size: 24,
-                              )
-                            ],
-                          ),
-                        ],
-                      )
+                                size: 27,
+                              ),
+                            )
+                          : Container(),
                     ],
                   ),
-                )),
-          );
-        });
+                  GestureDetector(
+                    onTap:(){
+                      setState(() {
+                         Navigator.push(context, MaterialPageRoute(builder: (context) {
+                          return SafeArea(
+                            child: /*userType==usertype.user?*/PlaceMainPage(currentplaceID: widget.currentplaceID,)//todo:EditPlace(),
+                          );
+                        }));
+                      });
+                    },
+                    child: SizedBox(
+                      child: Container(
+                        color: Color(0x00ffffff),
+                        height: 90,
+                      ),
+                    ),
+                  ),
+                  Column(
+                    children: [
+                      Align(
+                        alignment: Alignment.bottomLeft,
+                        child: Text(
+                          placeModel.name,
+                          style: TextStyle(
+                              color: Colors.white, fontSize: 20),//todo fontsize
+                        ),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            placeModel.city+','+placeModel.area.substring(0,5),//todo
+                           style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 20 - 6),//todo fontsize
+                          ),
+                          Icon(
+                           // widget.place.ratingicon,//todo
+                            FontAwesomeIcons.solidSmile,
+                            color: Colors.white,
+                            size: 24,
+                          )
+                        ],
+                      ),
+                    ],
+                  )
+                ],
+              ),
+            )),
+      );
+      }
+    );
   }
 }
 
@@ -657,7 +655,7 @@ class _CategoryWidgetState extends State<CategoryWidget> {
 }
 
 class Categoryaddplace extends StatefulWidget {
-  Categoryaddplace(this.imagepath, this.backcolor);
+  Categoryaddplace(this.imagepath,this.backcolor);
   String imagepath;
   Color backcolor = Color(0x55ffffff);
 
@@ -684,7 +682,7 @@ class _CategoryaddplaceState extends State<Categoryaddplace> {
 }
 
 class Dropdownbox extends StatefulWidget {
-  Dropdownbox(this._salutations, this.hint, this.fun);
+  Dropdownbox(this._salutations, this.hint,this.fun);
 
   final List<String> _salutations;
   Function fun;
@@ -728,8 +726,7 @@ class _DropdownboxState extends State<Dropdownbox> {
                   DropdownMenuItem<String>(child: Text(item), value: item))
               .toList(),
           onChanged: (val) {
-            setState(
-              () {
+            setState(() {
                 salutation = val;
                 widget.fun(val);
               },
@@ -761,10 +758,10 @@ class ImageContainerStackTemplate extends StatelessWidget {
                 height: 390,
                 decoration: BoxDecoration(
                     image: DecorationImage(
-                  image: AssetImage('image/default.png'), //todo
-                  fit: BoxFit.fitWidth,
-                )),
-                child: Container()),
+                      image: AssetImage('image/default.png'),//todo
+                      fit: BoxFit.fitWidth,
+                    )),
+                child:Container()),
           ),
           Positioned(
             top: 0,

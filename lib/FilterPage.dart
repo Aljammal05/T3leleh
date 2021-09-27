@@ -3,6 +3,7 @@ import 'package:flutter/painting.dart';
 import 'package:t3leleh_v1/DashboardPage.dart';
 import 'package:t3leleh_v1/Tamplets/Templates.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:t3leleh_v1/Users/Users.dart';
 import 'lists/Lists.dart';
 
 class FilterPage extends StatefulWidget {
@@ -99,7 +100,7 @@ class _FilterPageState extends State<FilterPage> {
                               backgroundColor: Color(0xb83AAEC2),
                               onPressed: () {
                                 setState(() {
-                                  numofperson= numofperson >= 25 ? numofperson : numofperson++;
+                                  numofperson >= 25 ? null : numofperson++;
                                 });
                               }),
                         ),
@@ -117,7 +118,7 @@ class _FilterPageState extends State<FilterPage> {
                               backgroundColor: Color(0xb83AAEC2),
                               onPressed: () {
                                 setState(() {
-                                  numofperson=  numofperson <= 1 ? numofperson : numofperson--;
+                                  numofperson <= 1 ? null : numofperson--;
                                 });
                               }),
                         ),
