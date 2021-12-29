@@ -1,19 +1,21 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:t3leleh_v1/Services/AutoLoginServies.dart';
 import 'SignInPage.dart';
 class WelcomePage extends StatefulWidget {
   _WelcomePageState createState() => _WelcomePageState();
 }
 class _WelcomePageState extends State<WelcomePage> {
   @override
-  void initState() {
-    super.initState();
-    Timer(Duration(seconds: 3), (){
-      Navigator.push(context, MaterialPageRoute(builder: (context) {
-        return SafeArea(child:  SignInPage(),);}));
-    });
-  }
+  // void initState() {
+  //   super.initState();
+  //   Timer(Duration(seconds: 3), (){
+  //     Navigator.push(context, MaterialPageRoute(builder: (context) {
+  //       return   SafeArea(child: AutoLoginServies() );}));
+  //   });
+  // }
   Widget build(BuildContext context) {
+
     return Container(
       decoration: BoxDecoration(
           gradient: LinearGradient(

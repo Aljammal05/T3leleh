@@ -1,12 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:t3leleh_v1/DashboardPage.dart';
-import 'package:t3leleh_v1/OwnedPlacespage.dart';
 import 'package:t3leleh_v1/Tamplets/Templates.dart';
-import 'package:t3leleh_v1/Users/Users.dart';
-import 'package:t3leleh_v1/lists/Lists.dart';
 
 class GeneralSettings extends StatefulWidget {
+  GeneralSettings({this.currentuserid='',this.type=''});
+  String currentuserid,type;
   @override
   _GeneralSettingsState createState() => _GeneralSettingsState();
 }
@@ -112,7 +110,7 @@ class _GeneralSettingsState extends State<GeneralSettings> {
                         });
                       },
                       child: Text(
-                        userType == usertype.user
+                        widget.type == 'user'
                             ? 'Clear History'
                             : 'Clear Data',
                         style: TextStyle(
@@ -126,7 +124,7 @@ class _GeneralSettingsState extends State<GeneralSettings> {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 52.0, vertical: 20),
                     child: Text(
-                      userType == usertype.user
+                      widget.type == 'user'
                           ? 'delete all places you have recently checked in ,\nowned , mark as favorite'
                           : 'delete all places you owned, clear all statistic .',
                       style: TextStyle(color: Colors.grey.shade500),
@@ -198,7 +196,7 @@ class _GeneralSettingsState extends State<GeneralSettings> {
                           elevation: 4,
                           shadowColor: Colors.grey,
                           borderRadius: BorderRadius.all(Radius.circular(90)),
-                          child: AnimatedToggle(['USD', 'J.D'], (value) {
+                          child: AnimatedToggle(['J.D', 'USD'], (value) {
                             setState(() {
                               currencytoggle = value;
                             });

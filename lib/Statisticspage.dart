@@ -1,7 +1,5 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:t3leleh_v1/Place.dart';
-import 'package:t3leleh_v1/Users/Users.dart';
 
 class StatisticPage extends StatefulWidget {
   @override
@@ -251,8 +249,8 @@ class _StatisticPageState extends State<StatisticPage> {
 }
 
 class PlaceStatisticWidget extends StatelessWidget {
-  PlaceStatisticWidget(this.place);
-  Place place;
+  PlaceStatisticWidget();
+
 
   @override
   Widget build(BuildContext context) {
@@ -269,7 +267,7 @@ class PlaceStatisticWidget extends StatelessWidget {
           child: Column(
             children: [
               Text(
-                place.name,
+                '',//todo place.name,
                 style: TextStyle(color: Colors.white, fontSize: 20),
               ),
               SizedBox(
@@ -286,16 +284,17 @@ class PlaceStatisticWidget extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    place.clickonTM.toString(),
+                    '',//todo place.clickonTM.toString(),
                     style: TextStyle(color: Colors.white, fontSize: 30),
                   ),
-                  place.clickonTM >= place.clickonLM
-                      ? Icon(
-                          Icons.arrow_drop_up,
-                          color: Colors.green,
-                          size: 30,
-                        )
-                      : Icon(
+                  //todo place.clickonTM >= place.clickonLM
+                  //     ? Icon(
+                  //         Icons.arrow_drop_up,
+                  //         color: Colors.green,
+                  //         size: 30,
+                  //       )
+                  //     :
+                  Icon(
                           Icons.arrow_drop_down,
                           color: Colors.red,
                           size: 30,
@@ -316,16 +315,17 @@ class PlaceStatisticWidget extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    place.checkinTM.toString(),
+                    '',//todo place.checkinTM.toString(),
                     style: TextStyle(color: Colors.white, fontSize: 30),
                   ),
-                  place.checkinTM >= place.checkinLM
-                      ? Icon(
-                          Icons.arrow_drop_up,
-                          color: Colors.green,
-                          size: 30,
-                        )
-                      : Icon(
+                  // todo place.checkinTM >= place.checkinLM
+                  //     ? Icon(
+                  //         Icons.arrow_drop_up,
+                  //         color: Colors.green,
+                  //         size: 30,
+                  //       )
+                  //     :
+                  Icon(
                           Icons.arrow_drop_down,
                           color: Colors.red,
                           size: 30,

@@ -1,14 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:t3leleh_v1/MenuDrawerPage.dart';
-import 'package:t3leleh_v1/Place.dart';
-import 'package:t3leleh_v1/ProfilePage.dart';
-import 'package:t3leleh_v1/Users/Users.dart';
-import 'package:t3leleh_v1/PlaceMainPage.dart';
 import 'package:t3leleh_v1/EditPlace.dart';
+import 'package:t3leleh_v1/MenuDrawerPage.dart';
+import 'package:t3leleh_v1/PlaceMainPage.dart';
 import 'package:t3leleh_v1/constans/constans.dart';
-import 'package:t3leleh_v1/lists/Lists.dart';
 import 'package:t3leleh_v1/models/placemodel.dart';
 
 class LinearColorBottom extends StatefulWidget {
@@ -259,7 +256,7 @@ class FooterText extends StatelessWidget {
 }
 
 class DashboardTemplate extends StatefulWidget {
-  DashboardTemplate(this.topcolor, this.bottomcolor, this.imagepath,
+  DashboardTemplate(this.currentuserid,this.topcolor, this.bottomcolor, this.imagepath,
       this.pagename, this.icon, this.nextpage, this.child);
   Color topcolor;
   Color bottomcolor;
@@ -268,6 +265,7 @@ class DashboardTemplate extends StatefulWidget {
   IconData icon;
   Widget nextpage;
   Widget child;
+  String currentuserid;
   @override
   _DashboardTemplateState createState() => _DashboardTemplateState();
 }
@@ -277,7 +275,7 @@ class _DashboardTemplateState extends State<DashboardTemplate> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        drawer: MenuDrawerPage(),
+        drawer: MenuDrawerPage(currentuserid: widget.currentuserid,),
         body: Builder(
           builder: (context) => Container(
             decoration: BoxDecoration(
@@ -495,8 +493,8 @@ class _AnimatedToggleState extends State<AnimatedToggle> {
 }
 
 class PlaceWidget extends StatefulWidget {
-  PlaceWidget({this.currentplaceID = '', this.height = 190});
-  String currentplaceID;
+  PlaceWidget({required this.currentuserid,this.currentplaceID = '', this.height = 190});
+  String currentplaceID,currentuserid;
   double height;
 
   @override
@@ -504,6 +502,26 @@ class PlaceWidget extends StatefulWidget {
 }
 
 class _PlaceWidgetState extends State<PlaceWidget> {
+  String _usertype='';
+  List favlist=[];
+  void initState(){
+    super.initState();
+    _getUserData();
+  }
+  void _getUserData()async{
+     favlist=await usersref.doc(widget.currentuserid).get().then((value) {return value.data()!['favoriteplaces'];});
+    _usertype=await usersref.doc(widget.currentuserid).get().then((value) {return value.data()!['userType'];});
+    setState(() {
+      _usertype=_usertype;
+    });
+  }
+  bool _isFavorate(){
+    for(int i =0;i<favlist.length;i++){
+      if(favlist[i]==widget.currentplaceID)
+        return true;
+    }
+    return false;
+  }
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
@@ -512,7 +530,6 @@ class _PlaceWidgetState extends State<PlaceWidget> {
           if (!snapshot.hasData) {
             return Center(
               child: CircularProgressIndicator(
-                backgroundColor: Colors.black,
                 valueColor: AlwaysStoppedAnimation(Colors.white),
               ),
             );
@@ -520,110 +537,109 @@ class _PlaceWidgetState extends State<PlaceWidget> {
           PlaceModel placeModel = PlaceModel.fromdoc(snapshot.data);
           return Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Container(
-                height: widget.height, //todo
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(25)),
-                  image: DecorationImage(
-                    image: NetworkImage(placeModel.placepicURl),
-                    colorFilter: new ColorFilter.mode(
-                        Colors.white.withOpacity(0.85), BlendMode.dstATop),
-                    fit: BoxFit.cover,
+            child: GestureDetector(
+              onTap: () {
+                setState(() {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) {
+                        return SafeArea(
+                          child: _usertype == 'user'? PlaceMainPage(
+                            currentplaceID: widget.currentplaceID,currentuserID: widget.currentuserid,
+                          ) :EditPlace(widget.currentplaceID, placeModel.cost_per_person, widget.currentuserid),
+                        );
+                      }));
+                });
+              },
+              child: Container(
+                  height: widget.height,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(25)),
+                    image: DecorationImage(
+                      image: NetworkImage(placeModel.placepicURl),
+                      colorFilter: new ColorFilter.mode(
+                          Colors.white.withOpacity(0.85), BlendMode.dstATop),
+                      fit: BoxFit.cover,
+                    ),
                   ),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          userType == usertype.user
-                              ? GestureDetector(
-                                  onTap: () {
-                                    setState(() {
-                                      if (false) {
-                                      } else {}
-                                    });
-                                  },
-                                  child: Icon(
-                                    //todo
-                                    true
-                                        ? Icons.favorite
-                                        : Icons.favorite_border,
-                                    color: Colors.white,
-                                    size: 27,
-                                  ),
-                                )
-                              : Container(),
-                        ],
-                      ),
-                      GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            Navigator.push(context,
-                                MaterialPageRoute(builder: (context) {
-                              return SafeArea(
-                                  child: /*userType==usertype.user?*/ PlaceMainPage(
-                                currentplaceID: widget.currentplaceID,
-                              ) //todo:EditPlace(),
-                                  );
-                            }));
-                          });
-                        },
-                        child: SizedBox(
-                          child: Container(
-                            color: Color(0x00ffffff),
-                            height: 90,
-                          ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            _usertype == 'user'?
+                                 GestureDetector(
+                                    onTap: () {
+                                      _getUserData();
+                                      setState(() {
+                                        if (_isFavorate()) {
+                                          usersref.doc(widget.currentuserid).update(
+                                              {'favoriteplaces':FieldValue.arrayRemove([widget.currentplaceID])});
+
+                                        } else {
+                                          usersref.doc(widget.currentuserid).update(
+                                              {'favoriteplaces':FieldValue.arrayUnion([widget.currentplaceID])});
+                                        }
+                                      });
+                                    },
+                                    child: Icon(
+                                      _isFavorate()
+                                          ? Icons.favorite
+                                          : Icons.favorite_border,
+                                      color: Colors.white,
+                                      size: 27,
+                                    ),
+                                  ):Container()
+                          ],
                         ),
-                      ),
-                      Column(
-                        children: [
-                          Align(
-                            alignment: Alignment.bottomLeft,
-                            child: Text(
-                              placeModel.name,
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 20), //todo fontsize
-                            ),
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                placeModel.city +
-                                    ',' +
-                                    placeModel.area.substring(0, 5), //todo
+                        Column(
+                          children: [
+                            Align(
+                              alignment: Alignment.bottomLeft,
+                              child: Text(
+                                placeModel.name,
                                 style: TextStyle(
                                     color: Colors.white,
-                                    fontSize: 20 - 6), //todo fontsize
+                                    fontSize: 20),
                               ),
-                              Icon(
-                                // widget.place.ratingicon,//todo
-                                FontAwesomeIcons.solidSmile,
-                                color: Colors.white,
-                                size: 24,
-                              )
-                            ],
-                          ),
-                        ],
-                      )
-                    ],
-                  ),
-                )),
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  placeModel.city +
+                                      ',' +
+                                      (placeModel.area.length > 5 ? placeModel.area.substring(0, 5):placeModel.area),
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 20 - 6),
+                                ),
+                                Icon(
+                                  // widget.place.ratingicon,//todo
+                                  FontAwesomeIcons.solidSmile,
+                                  color: Colors.white,
+                                  size: 24,
+                                )
+                              ],
+                            ),
+                          ],
+                        )
+                      ],
+                    ),
+                  )),
+            ),
           );
         });
   }
 }
 
 class CategoryWidget extends StatefulWidget {
-  CategoryWidget(this.imagepath);
+  CategoryWidget(this.imagepath,this.fun);
   String imagepath;
-
+  Function fun;
   @override
   _CategoryWidgetState createState() => _CategoryWidgetState();
 }
@@ -640,6 +656,7 @@ class _CategoryWidgetState extends State<CategoryWidget> {
             backcolor = backcolor == Color(0x55ffffff)
                 ? Color(0xb83AAEC2)
                 : Color(0x55ffffff);
+            widget.fun();
           });
         },
         child: Container(
@@ -748,8 +765,11 @@ class ImageContainerStackTemplate extends StatelessWidget {
   ImageProvider imagepath;
   Widget imagechild;
   Widget containerchild;
+
+
   @override
   Widget build(BuildContext context) {
+    MediaQueryData mq = MediaQuery.of(context);
     return Scaffold(
       body: Stack(
         children: [
@@ -782,8 +802,8 @@ class ImageContainerStackTemplate extends StatelessWidget {
           Positioned(
             bottom: 0,
             child: Container(
-              height: 480,
-              width: 393,
+              height: mq.size.height -300,
+              width: mq.size.width+0.3,
               decoration: BoxDecoration(
                   borderRadius: BorderRadius.only(
                       topRight: Radius.circular(25),

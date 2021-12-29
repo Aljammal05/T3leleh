@@ -1,11 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
 import 'package:t3leleh_v1/constans/constans.dart';
 
 class AddPlace_Services {
   static Future<bool> add_Place(
       String userID,
-      RangeValues min_max,
+      double cost_per_person,
       double lat,
       double lng,
       String name,
@@ -23,8 +22,7 @@ class AddPlace_Services {
         'name': name,
         'description': description,
         'category': category,
-        'min': min_max.start.round().toString(),
-        'max': min_max.end.round().toString(),
+        'cost per person':cost_per_person,
         'city': city,
         'area': area,
         'lat': lat,
@@ -32,6 +30,7 @@ class AddPlace_Services {
         'phoneNo': phoneNo,
         'websiteURL': websiteURL,
         'placepicURL': placepicURL,
+        'status' : 'pending'
       });
       usersref.doc(userID).update({
         'ownedplaces':FieldValue.arrayUnion([name+'-'+area])

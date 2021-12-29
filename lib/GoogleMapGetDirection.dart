@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:t3leleh_v1/Place.dart';
-import 'package:t3leleh_v1/PlaceMainPage.dart';
-import 'package:t3leleh_v1/Users/Users.dart';
 class MapGetDirection extends StatefulWidget {
   LatLng destination;
   String name;
@@ -27,7 +24,7 @@ class _MapGetDirectionState extends State<MapGetDirection> {
     return  Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: Text('SET LOCATION'),
+        title: Text('GET LOCATION'),
         toolbarHeight: 75,
         backgroundColor: Color(0xff08AFBF),
         actions: [
@@ -47,7 +44,7 @@ class _MapGetDirectionState extends State<MapGetDirection> {
           target: widget.destination,
           zoom: 11.5,
         ),
-        mapType: MapType.hybrid,
+        mapType: MapType.normal,
         markers: Set.from(markerlist),
       ),
     );

@@ -1,24 +1,116 @@
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:t3leleh_v1/SettingsPage.dart';
 import 'package:t3leleh_v1/Tamplets/Templates.dart';
-import 'package:t3leleh_v1/Users/Users.dart';
 
 class RatingPage extends StatefulWidget {
-
+  RatingPage({required this.currentuserID});
+  String currentuserID;
   @override
   _RatingPageState createState() => _RatingPageState();
 }
 
-int rateapp = 0,
-    terribleapp = 3,
-    badapp = 1,
-    okayapp = 1,
-    goodapp = 4,
-    greatapp = 13;
 
 class _RatingPageState extends State<RatingPage> {
+  int rateapp = 0,
+      terribleapp = 3,
+      badapp = 1,
+      okayapp = 1,
+      goodapp = 4,
+      greatapp = 13;
+  String feedback='';
   @override
+  void ratepalance(int x) {
+    switch (rateapp) {
+      case 1:
+        terribleapp--;
+        break;
+      case 2:
+        badapp--;
+        break;
+      case 3:
+        okayapp--;
+        break;
+      case 4:
+        goodapp--;
+        break;
+      case 5:
+        greatapp--;
+        break;
+    }
+    if (x == rateapp) return;
+    switch (x) {
+      case 1:
+        terribleapp++;
+        break;
+      case 2:
+        badapp++;
+        break;
+      case 3:
+        okayapp++;
+        break;
+      case 4:
+        goodapp++;
+        break;
+      case 5:
+        greatapp++;
+        break;
+    }
+  }
+
+  double calculateratepercentageapp(int val) {
+    return val / (terribleapp + badapp + okayapp + goodapp + greatapp);
+  }
+
+  double calculaterateapp() {
+    return calculateratesumapp() /
+        (terribleapp + badapp + okayapp + goodapp + greatapp);
+  }
+
+  int calculateratesumapp() {
+    return (terribleapp +
+        (badapp * 2) +
+        (okayapp * 3) +
+        (goodapp * 4) +
+        (greatapp * 5));
+  }
+
+  IconData rateiconapp(int x) {
+    switch (x) {
+      case 1:
+        return FontAwesomeIcons.solidAngry;
+      case 2:
+        return FontAwesomeIcons.solidFrown;
+      case 3:
+        return FontAwesomeIcons.solidMeh;
+      case 4:
+        return FontAwesomeIcons.solidSmile;
+      case 5:
+        return FontAwesomeIcons.solidGrinBeam;
+      default:
+        return FontAwesomeIcons.solidMeh;
+    }
+  }
+
+  String ratetitleapp(int x) {
+    switch (x) {
+      case 1:
+        return 'Terrible';
+      case 2:
+        return 'Bad';
+      case 3:
+        return 'Okay';
+      case 4:
+        return 'Good';
+      case 5:
+        return 'Great';
+      default:
+        return '';
+    }
+  }
+
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
@@ -85,16 +177,18 @@ class _RatingPageState extends State<RatingPage> {
                   child: Row(
                     children: [
                       GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              ratepalance(1);
-                              rateapp = rateapp == 1 ? 0 : 1;
-                            });
-                          },
-                          child: Ratingbutton(
-                              FontAwesomeIcons.solidAngry,
-                              'Terrible',
-                              rateapp == 1 ? Colors.white : Color(0x99ffffff))),
+                        onTap: () {
+                          setState(() {
+                            ratepalance(1);
+                            rateapp = rateapp == 1 ? 0 : 1;
+                          });
+                        },
+                        child: Ratingbutton(
+                          FontAwesomeIcons.solidAngry,
+                          'Terrible',
+                          rateapp == 1 ? Colors.white : Color(0x99ffffff),
+                        ),
+                      ),
                       GestureDetector(
                           onTap: () {
                             setState(() {
@@ -262,13 +356,13 @@ class _RatingPageState extends State<RatingPage> {
                           Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Icon(
-                              rateiconapp(),
+                              rateiconapp(calculaterateapp().floor()),
                               color: Colors.white,
                               size: 50,
                             ),
                           ),
                           Text(
-                            ratetitleapp(),
+                            ratetitleapp(calculaterateapp().floor()),
                             style: TextStyle(fontSize: 18, color: Colors.white),
                           )
                         ],
@@ -293,6 +387,9 @@ class _RatingPageState extends State<RatingPage> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: TextField(
+                    onChanged: (val){
+                      feedback=val;
+                    },
                     keyboardType: TextInputType.multiline,
                     maxLines: 4,
                     maxLength: 500,
@@ -319,15 +416,28 @@ class _RatingPageState extends State<RatingPage> {
                 Padding(
                   padding: const EdgeInsets.all(30.0),
                   child: GestureDetector(
-                      onTap: (){
+                      onTap: () {
                         setState(() {
-                          Navigator.push(context, MaterialPageRoute(builder: (context) {
-                            return SafeArea(child:SettingPage() );
+                          print(rateapp);
+                          print(feedback);
+                          try {
+                            FirebaseFirestore.instance.collection('feedback')
+                                .doc(widget.currentuserID)
+                                .set(
+                                {
+                                  'rating': ratetitleapp(rateapp),
+                                  'feedback': feedback,
+                                });
+                          }
+                          catch(e){print(e);}
+                          //todo
+                          Navigator.push(context,
+                              MaterialPageRoute(builder: (context) {
+                            return SafeArea(child: SettingPage(currentuserid: widget.currentuserID,));
                           }));
                         });
                       },
-                      child: LinearColorBottom('SUBMIT')
-                  ),
+                      child: LinearColorBottom('SUBMIT')),
                 )
               ],
             ),
@@ -365,91 +475,4 @@ class Ratingbutton extends StatelessWidget {
   }
 }
 
-void ratepalance(int x) {
-  switch (rateapp) {
-    case 1:
-      terribleapp--;
-      break;
-    case 2:
-      badapp--;
-      break;
-    case 3:
-      okayapp--;
-      break;
-    case 4:
-      goodapp--;
-      break;
-    case 5:
-      greatapp--;
-      break;
-  }
-  if (x == rateapp) return;
-  switch (x) {
-    case 1:
-      terribleapp++;
-      break;
-    case 2:
-      badapp++;
-      break;
-    case 3:
-      okayapp++;
-      break;
-    case 4:
-      goodapp++;
-      break;
-    case 5:
-      greatapp++;
-      break;
-  }
-}
 
-double calculateratepercentageapp(int val) {
-  return val / (terribleapp + badapp + okayapp + goodapp + greatapp);
-}
-
-double calculaterateapp() {
-  return calculateratesumapp() /
-      (terribleapp + badapp + okayapp + goodapp + greatapp);
-}
-
-int calculateratesumapp() {
-  return (terribleapp +
-      (badapp * 2) +
-      (okayapp * 3) +
-      (goodapp * 4) +
-      (greatapp * 5));
-}
-
-IconData rateiconapp() {
-  switch (calculaterateapp().floor()) {
-    case 1:
-      return FontAwesomeIcons.solidAngry;
-    case 2:
-      return FontAwesomeIcons.solidFrown;
-    case 3:
-      return FontAwesomeIcons.solidMeh;
-    case 4:
-      return FontAwesomeIcons.solidSmile;
-    case 5:
-      return FontAwesomeIcons.solidGrinBeam;
-    default:
-      return FontAwesomeIcons.solidMeh;
-  }
-}
-
-String ratetitleapp() {
-  switch (calculaterateapp().floor()) {
-    case 1:
-      return 'Terrible';
-    case 2:
-      return 'Bad';
-    case 3:
-      return 'Okay';
-    case 4:
-      return 'Good';
-    case 5:
-      return 'Great';
-    default:
-      return '';
-  }
-}

@@ -1,18 +1,15 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:t3leleh_v1/GoogleMapGetDirection.dart';
-import 'package:t3leleh_v1/Place.dart';
-import 'package:t3leleh_v1/ProfilePage.dart';
 import 'package:t3leleh_v1/Tamplets/Templates.dart';
-import 'package:t3leleh_v1/Users/Users.dart';
 import 'package:t3leleh_v1/constans/constans.dart';
-import 'package:t3leleh_v1/lists/Lists.dart';
 import 'package:t3leleh_v1/models/placemodel.dart';
 
 class PlaceMainPage extends StatefulWidget {
-  PlaceMainPage({this.currentplaceID=''});
-  String currentplaceID;
+  PlaceMainPage({this.currentplaceID='',required this.currentuserID});
+  String currentplaceID,currentuserID;
   @override
   _PlaceMainPageState createState() => _PlaceMainPageState();
 }
@@ -91,16 +88,16 @@ class _PlaceMainPageState extends State<PlaceMainPage> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Padding(
-                padding: const EdgeInsets.only(left: 80.0, top: 10, bottom: 10),
+                padding: const EdgeInsets.only( top: 10, bottom: 10),
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
                       'AVG Cost : ',
                       style: TextStyle(fontSize: 20, color: Colors.white),
                     ),
                     Text(
-                      double.parse(placeModel.budgetmin).round().toString() + ' - ' +
-                          double.parse( placeModel.budgetmax).round().toString() ,
+                      placeModel.cost_per_person.round().toString() ,
                       style: TextStyle(fontSize: 35, color: Colors.white),
                     ),
                   ],
@@ -187,6 +184,8 @@ class _PlaceMainPageState extends State<PlaceMainPage> {
                   onTap: () {
                     setState(() {
                       //todo
+                      usersref.doc(widget.currentuserID).update(
+                          {'recentlyvisited':FieldValue.arrayUnion([widget.currentplaceID])});
                       Navigator.push(context, MaterialPageRoute(builder: (
                           context) {
                         return SafeArea(child: MapGetDirection(LatLng(placeModel.lat,placeModel.lng),placeModel.name));
@@ -194,7 +193,7 @@ class _PlaceMainPageState extends State<PlaceMainPage> {
                       // profreclist.add(RecentWidget(placeslist[widget.plac.placeid]));//todo
                     });
                   },
-                  child: LinearColorBottom('CHECK IN'),
+                  child: LinearColorBottom('GET LOCATION'),
                 ),
               ),
               Text(

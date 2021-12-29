@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:t3leleh_v1/SignInPage.dart';
 import 'package:t3leleh_v1/Tamplets/Templates.dart';
 import 'package:t3leleh_v1/Services/auth_service.dart';
+import 'Dialogs/Dialogs.dart';
 
 class RegisterPage extends StatefulWidget {
   @override
@@ -120,9 +121,9 @@ class _RegisterPageState extends State<RegisterPage> {
                                         .toList(),
                                     onChanged: (val) {
                                       setState(() {
-                                          _reg1city = val;
-                                          _regcity = val.toString();
-                                        });
+                                        _reg1city = val;
+                                        _regcity = val.toString();
+                                      });
                                     },
                                     value: _reg1city,
                                   ),
@@ -141,8 +142,38 @@ class _RegisterPageState extends State<RegisterPage> {
               padding: const EdgeInsets.only(top: 15.0, left: 20, right: 20),
               child: GestureDetector(
                 onTap: () {
+                  if (_regemail.isEmpty ||
+                      _regpassword.isEmpty ||
+                      _regname.isEmpty ||
+                      _regphoneNO.isEmpty ||
+                      _regcity.isEmpty) {
+                    showDialog<void>(
+                        context: context,
+                        barrierDismissible: false,
+                        builder: (context) => ErrorDialog(
+                              title: 'Sorry',
+                              text:
+                                  'All of fields are required,\nplease fill all of them.',
+                            ));
+                  }
+                  else
+                    if(_regpassword.length<8) {
+                      showDialog<void>(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (context) => ErrorDialog(
+                            title: 'Invalid Password',
+                            text:
+                            'Please make sure your password \ncontain 8 digits or more',
+                          ) );
+                    }
+                    else
                   try {
                     setState(() async {
+                      showDialog<void>(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (context) => WaitingDialog());
                       bool isvalid = await auth_service.signUp(
                           _regname,
                           _regemail,
@@ -151,6 +182,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           _regcity,
                           _toggleValue == 0 ? 'owner' : 'user');
                       if (isvalid) {
+                        Navigator.pop(context);
                         Navigator.pop(context);
                       } else {
                         print('something wrong');

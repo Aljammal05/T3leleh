@@ -1,65 +1,65 @@
 import 'dart:io';
-
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:t3leleh_v1/Dialogs/Dialogs.dart';
 import 'package:t3leleh_v1/GoogleMapSetLocation.dart';
 import 'package:t3leleh_v1/OwnedPlacespage.dart';
-import 'package:t3leleh_v1/Place.dart';
 import 'package:t3leleh_v1/Services/AddplaceServies.dart';
 import 'package:t3leleh_v1/Services/StorageService.dart';
-import 'package:t3leleh_v1/Statisticspage.dart';
 import 'package:t3leleh_v1/Tamplets/Templates.dart';
-import 'package:t3leleh_v1/ProfilePage.dart';
-import 'package:t3leleh_v1/Users/Users.dart';
 import 'package:t3leleh_v1/lists/Lists.dart';
 
 class AddPlace extends StatefulWidget {
-  AddPlace(this.placepos);
-  LatLng placepos = LatLng(31.963158, 35.930359);
+  AddPlace(
+      {this.placepos = const LatLng(31.963158, 35.930359),
+      required this.currentuserid});
+  LatLng placepos;
+  String currentuserid;
   @override
   _AddPlaceState createState() => _AddPlaceState();
 }
 
-int placeID = 4;
-
 class _AddPlaceState extends State<AddPlace> {
-  RangeValues totalbudget = RangeValues(0, 20);
-
+  double cost_per_person = 0;
+  File? _img;
   String placecity = '',
       placearea = '',
       placename = '',
       placedescription = '',
       placephoneNO = '',
       placeURL = '',
-      placepicURL='',
+      _placepicurl = '',
       placecategory = '';
   Color gamingcolor = Color(0x55ffffff),
       relaxcolor = Color(0x55ffffff),
       tourismcolor = Color(0x55ffffff);
   @override
-  // XFile? img;
-  // Future getimage() async {
-  //   final XFile? image =
-  //       await ImagePicker().pickImage(source: ImageSource.gallery);
-  //   setState(() {
-  //     img = image!;
-  //   });
-  // }
-  //
-  // Future takeimage() async {
-  //   final XFile? image =
-  //       await ImagePicker().pickImage(source: ImageSource.camera);
-  //   setState(() {
-  //     img = image!;
-  //   });
-  // }
+  void updatePos(LatLng pos) {
+    setState(() => widget.placepos = pos);
+  }
+
+  void moveToGoogleSetLocation() async {
+    final pos = await Navigator.push(
+      context,
+      CupertinoPageRoute(
+          fullscreenDialog: true, builder: (context) => MapSetLocation()),
+    );
+    updatePos(pos);
+  }
+
+  displayimage() {
+    if (_img == null) {
+      return AssetImage('image/default.png');
+    } else {
+      return FileImage(_img!);
+    }
+  }
 
   Widget build(BuildContext context) {
     return ImageContainerStackTemplate(
-     placepicURL.isEmpty
-          ? AssetImage('image/default.png')
-          : NetworkImage(placepicURL)as ImageProvider,
+      displayimage(),
       Column(
         children: [
           Padding(
@@ -97,10 +97,8 @@ class _AddPlaceState extends State<AddPlace> {
                     onTap: () async {
                       final PickedFile? image = await ImagePicker()
                           .getImage(source: ImageSource.camera);
-                      File img = File(image!.path);
-                      String url=await StorageService.uploadPlacePicture(placepicURL, img);
                       setState(() {
-                        placepicURL=url;
+                        _img = File(image!.path);
                       });
                     },
                     child: Icon(
@@ -114,10 +112,8 @@ class _AddPlaceState extends State<AddPlace> {
                   onTap: () async {
                     final PickedFile? image = await ImagePicker()
                         .getImage(source: ImageSource.gallery);
-                    File img = File(image!.path);
-                    String url=await StorageService.uploadPlacePicture(placepicURL, img);
                     setState(() {
-                      placepicURL=url;
+                      _img = File(image!.path);
                     });
                   },
                   child: Icon(
@@ -279,7 +275,7 @@ class _AddPlaceState extends State<AddPlace> {
               ),
             ),
             Text(
-              ' AVG Cost',
+              ' AVG Cost Per Person',
               style: TextStyle(fontSize: 22, color: Colors.white),
             ),
             Container(
@@ -295,9 +291,7 @@ class _AddPlaceState extends State<AddPlace> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    totalbudget.start.round().toString() +
-                        ' - ' +
-                        totalbudget.end.round().toString(),
+                    cost_per_person.round().toString(),
                     style: TextStyle(color: Colors.white, fontSize: 33),
                   ),
                   Padding(
@@ -310,16 +304,16 @@ class _AddPlaceState extends State<AddPlace> {
                 ],
               ),
             ),
-            RangeSlider(
-                values: totalbudget,
+            Slider(
+                value: cost_per_person,
                 min: 0,
-                max: 150,
-                divisions: 15,
+                max: 25,
+                divisions: 25,
                 activeColor: Color(0xff3AAEC2),
                 inactiveColor: Color(0xffffffff),
                 onChanged: (newval) {
                   setState(() {
-                    totalbudget = newval;
+                    cost_per_person = newval;
                   });
                 }),
             Text(
@@ -359,14 +353,7 @@ class _AddPlaceState extends State<AddPlace> {
               padding:
                   const EdgeInsets.symmetric(vertical: 20.0, horizontal: 12),
               child: GestureDetector(
-                onTap: () {
-                  setState(() {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) {
-                      return SafeArea(child: MapSetLocation());
-                    }));
-                  });
-                },
+                onTap: moveToGoogleSetLocation,
                 child: LinearColorBottom('SET LOCATION'),
               ),
             ),
@@ -452,30 +439,27 @@ class _AddPlaceState extends State<AddPlace> {
             Padding(
               padding: const EdgeInsets.all(12.0),
               child: GestureDetector(
-                onTap: () {
-                  setState(() {
-                    //   placeslist.add(Place(
-                    //   name: placename,
-                    //   description: placedescription,
-                    //   category: placecategory,
-                    //   city: placecity,
-                    //   area: placearea,
-                    //   phoneNO: placephoneNO,
-                    //   URL: placeURL,
-                    // ));
-                    //   placeslist[placeID].location=widget.placepos;
-                    //   placeslist[placeID].AVGcost=totalbudget;
-                    //   placeslist[placeID].image= img==null?AssetImage('image/default.png'):Image.file(File(img!.path)).image;
-                    //   placeslist[placeID].placeid=placeID;
-                    //   //widget.t3user.ownedlist1.add(PlaceWidget(placeslist[placeID],widget.t3user));
-                    //   //widget.t3user.profownedlist.add(RecentWidget(placeslist[placeID],widget.t3user));
-                    //  // dashlist1.add(PlaceWidget(placeslist[placeID],widget.t3user));
-                    //   //widget.t3user.statisticlist.add(PlaceStatisticWidget(placeslist[placeID]));
-                    //   //todo
-                    //   placeID++;
+                onTap: () async {
+                  if (cost_per_person != 0 &&
+                      placename.isNotEmpty &&
+                      placedescription.isNotEmpty &&
+                      placecategory.isNotEmpty &&
+                      placecity.isNotEmpty &&
+                      placearea.isNotEmpty &&
+                      placephoneNO.isNotEmpty &&
+                      placeURL.isNotEmpty &&
+                      widget.placepos.longitude != 35.93035900000001 &&
+                      widget.placepos.latitude != 31.963158 &&
+                      _img != null) {
+                    showDialog<void>(
+                        context: context,
+                        barrierDismissible: false,
+                        builder: (context) => WaitingDialog());
+                    _placepicurl = await StorageService.uploadPlacePicture(
+                        _placepicurl, _img!);
                     AddPlace_Services.add_Place(
-                        '8bWwS1DBijgvirpsgJUw8EBNH9m2',
-                        totalbudget,
+                        widget.currentuserid,
+                        cost_per_person,
                         widget.placepos.latitude,
                         widget.placepos.longitude,
                         placename,
@@ -484,14 +468,52 @@ class _AddPlaceState extends State<AddPlace> {
                         placearea,
                         placephoneNO,
                         placeURL,
-                        placepicURL,
+                        _placepicurl,
                         placecategory);
-
+                    Navigator.pop(context);
                     Navigator.push(context,
                         MaterialPageRoute(builder: (context) {
-                      return SafeArea(child:OwnedPlacesPage());
+                      return SafeArea(
+                          child: OwnedPlacesPage(
+                        currentuserid: widget.currentuserid,
+                      ));
                     }));
-                  });
+                  } else {
+                    if (cost_per_person == 0 ||
+                        placename.isEmpty ||
+                        placedescription.isEmpty ||
+                        placecategory.isEmpty ||
+                        placecity.isEmpty ||
+                        placearea.isEmpty ||
+                        placephoneNO.isEmpty ||
+                        placeURL.isEmpty)
+                      showDialog<void>(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (context) => ErrorDialog(
+                                title: 'Sorry',
+                                text:
+                                    'All of fields are required,\nPlease fill all of them.',
+                              ));
+                    else if (_img == null)
+                      showDialog<void>(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (context) => ErrorDialog(
+                                title: 'Invalid Image',
+                                text:
+                                    'Please select image from gallery ,\nOr take one from camera.',
+                              ));
+                    else
+                      showDialog<void>(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (context) => ErrorDialog(
+                                title: 'Invalid Location',
+                                text:
+                                    'Please mark a place location\non the map "Set Location" .',
+                              ));
+                  }
                 },
                 child: LinearColorBottom('SAVE'),
               ),

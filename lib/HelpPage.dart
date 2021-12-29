@@ -1,8 +1,9 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'Users/Users.dart';
 
 class HelpPage extends StatefulWidget {
+  HelpPage({this.type=''});
+  String type;
   @override
   _HelpPageState createState() => _HelpPageState();
 }
@@ -84,7 +85,7 @@ class _HelpPageState extends State<HelpPage> {
                   ),
                   HelpQuestion('How can I change my password ?',
                       'dashboard > menu > settings > security'),
-                  userType == usertype.user
+                  widget.type == 'user'
                       ? HelpQuestion('Can I specify my requirement ?',
                           'yes you can\ndashboard > filter')
                       : HelpQuestion('How can I manage my owned places ?',

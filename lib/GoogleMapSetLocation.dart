@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:t3leleh_v1/AddPlace.dart';
-import 'package:t3leleh_v1/Users/Users.dart';
 
 class MapSetLocation extends StatefulWidget {
   _MapSetLocationState createState() => _MapSetLocationState();
@@ -20,14 +18,7 @@ class _MapSetLocationState extends State<MapSetLocation> {
         actions: [
           TextButton(
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => SafeArea(
-                    child: AddPlace(pos),
-                  ),
-                ),
-              );
+              Navigator.pop(context,pos);
             },
             child: Text(
               'SAVE',
@@ -41,7 +32,7 @@ class _MapSetLocationState extends State<MapSetLocation> {
           target: LatLng(31.963158, 35.930359),
           zoom: 11.5,
         ),
-        mapType: MapType.hybrid,
+        mapType: MapType.normal,
         markers: Set.from(markerlist),
         onTap: tappoint,
       ),

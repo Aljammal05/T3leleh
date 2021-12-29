@@ -19,7 +19,11 @@ class auth_service {
           'phoneNo': phoneNO,
           'city': city,
           'userType': userType,
-          'ProfilePicURL': ''
+          'ProfilePicURL': '',
+          'recentlyvisited':[],
+          'favoriteplaces':[],
+          'ownedplaces':[]
+
         });
         return true;
       }

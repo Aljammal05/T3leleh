@@ -1,16 +1,15 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:t3leleh_v1/AddPlace.dart';
 import 'package:t3leleh_v1/DashboardPage.dart';
+import 'package:t3leleh_v1/Dialogs/Dialogs.dart';
 import 'package:t3leleh_v1/EditEmailPage.dart';
 import 'package:t3leleh_v1/EditPlace.dart';
-import 'package:t3leleh_v1/Place.dart';
 import 'package:t3leleh_v1/PlaceMainPage.dart';
 import 'package:t3leleh_v1/Services/StorageService.dart';
+import 'package:t3leleh_v1/SignInPage.dart';
 import 'package:t3leleh_v1/Tamplets/Templates.dart';
-import 'package:t3leleh_v1/Users/Users.dart';
-import 'package:t3leleh_v1/lists/Lists.dart';
 import 'package:t3leleh_v1/models/placemodel.dart';
 import 'package:t3leleh_v1/models/usermodel.dart';
 import 'dart:io';
@@ -19,31 +18,46 @@ import 'constans/constans.dart';
 class ProfilePage extends StatefulWidget {
   String currentuserid;
   ProfilePage({this.currentuserid = ''});
-  @override
   _ProfilePageState createState() => _ProfilePageState();
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  @override
+ void initState(){
+    super.initState();
+    fillOwnedPlaces();
+    fillFavoritePlaces();
+    fillRecentlyVisited();
 
+  }
+void fillOwnedPlaces()async{
+  ownedplacesw=[];
+ List ownedid= await usersref.doc(widget.currentuserid).get().then((value) {return value.data()!['ownedplaces'];});
+ownedid.forEach((element) { ownedplacesw.add(RecentWidget(currentplaceID: element,currentuserid: widget.currentuserid,));});
+}
+ void fillFavoritePlaces()async{
+   favoriteplaces=[];
+   List favid= await usersref.doc(widget.currentuserid).get().then((value) {return value.data()!['favoriteplaces'];});
+   favid.forEach((element) { favoriteplaces.add(RecentWidget(currentplaceID: element,currentuserid: widget.currentuserid));});
+ }
+ void fillRecentlyVisited()async{
+   recentlyvisited=[];
+   List recentid= await usersref.doc(widget.currentuserid).get().then((value) {return value.data()!['recentlyvisited'];});
+   recentid.forEach((element) { recentlyvisited.add(RecentWidget(currentplaceID: element,currentuserid: widget.currentuserid));});
+ }
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color(0x00ffffff),
       body: FutureBuilder(
         future: usersref.doc(widget.currentuserid).get(),
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           if (!snapshot.hasData) {
             return Center(
               child: CircularProgressIndicator(
-                backgroundColor: Colors.black,
-                valueColor: AlwaysStoppedAnimation(Colors.white),
+                  valueColor: AlwaysStoppedAnimation(Colors.white),
               ),
             );
           }
           UserModel userModel = UserModel.fromdoc(snapshot.data);
-          ownedplacesw=[];
-          for(int i=0;i<userModel.ownedplaces.length;i++){
-            ownedplacesw.add(RecentWidget(currentplaceID:userModel.ownedplaces[i]));
-          }
           return ImageContainerStackTemplate(
               userModel.ProfilePicURL.isNotEmpty
                   ? NetworkImage(userModel.ProfilePicURL)
@@ -167,7 +181,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               Navigator.push(context,
                                   MaterialPageRoute(builder: (context) {
                                 return SafeArea(
-                                  child: EditEmailPage(),
+                                  child: EditEmailPage(currentuserid: widget.currentuserid,email : userModel.email),
                                 );
                               }));
                             });
@@ -202,7 +216,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         style: TextStyle(fontSize: 18, color: Colors.white),
                       ),
                     ),
-                    userType == usertype.user
+                    userModel.userType=='user'
                         ? Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -229,7 +243,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                               MaterialPageRoute(
                                                   builder: (context) {
                                             return SafeArea(
-                                              child: DashboardPage(),
+                                              child: DashboardPage(currentuserid: widget.currentuserid,),
                                             );
                                           }));
                                         });
@@ -252,7 +266,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                       ),
                                     ),
                                     Row(
-                                      children: profreclist,
+                                      children: recentlyvisited.reversed.toList(),
                                     )
                                   ],
                                 ),
@@ -280,7 +294,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                               MaterialPageRoute(
                                                   builder: (context) {
                                             return SafeArea(
-                                              child: DashboardPage(),
+                                              child: DashboardPage(currentuserid: widget.currentuserid,),
                                             );
                                           }));
                                         });
@@ -303,15 +317,14 @@ class _ProfilePageState extends State<ProfilePage> {
                                       ),
                                     ),
                                     Row(
-                                      children: proffavlist,
+                                      children: favoriteplaces.reversed.toList(),
                                     )
                                   ],
                                 ),
                               )
                             ],
                           )
-                        : Container(),
-                    userType == usertype.owner
+                        : userModel.userType=='owner'
                         ? Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -338,8 +351,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                               MaterialPageRoute(
                                                   builder: (context) {
                                             return SafeArea(
-                                              child: AddPlace(
-                                                  LatLng(31.963158, 35.930359)),
+                                              child: AddPlace(currentuserid: widget.currentuserid,),
                                             );
                                           }));
                                         });
@@ -362,9 +374,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                       ),
                                     ),
                                     Row(
-                                        //todo
-
-                                         children:ownedplacesw.reversed.toList(),
+                                      children:ownedplacesw.reversed.toList(),
                                         )
                                   ],
                                 ),
@@ -378,10 +388,27 @@ class _ProfilePageState extends State<ProfilePage> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          Text(
+                          TextButton(onPressed: (){
+                            showDialog<void>(
+                                context: context,
+                                barrierDismissible: false,
+                                builder: (context) => WarningDialog(title: 'Delete Account',text: 'Are you sure you want to delete your\naccount? This will permnently erase\nyour account.',buttontext: 'Delete',action: (){
+                                  final user = FirebaseAuth.instance.currentUser;
+                                  user!.delete();
+                                  usersref.doc(widget.currentuserid).delete();
+                                  Navigator.push(context,
+                                      MaterialPageRoute(
+                                          builder: (context) {
+                                            return SafeArea(child: SignInPage());
+                                          }));
+                                })
+                            );
+                          },
+                            child: Text(
                             'Delete Account',
                             style: TextStyle(fontSize: 18, color: Colors.white),
-                          ),
+                          ),),
+
                           Icon(Icons.delete, size: 25, color: Colors.white)
                         ],
                       ),
@@ -394,10 +421,10 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 }
-List <RecentWidget> ownedplacesw=[];
+List <RecentWidget> ownedplacesw=[],favoriteplaces=[],recentlyvisited=[];
 class RecentWidget extends StatefulWidget {
-  RecentWidget({this.currentplaceID=''});
-  String currentplaceID;
+  RecentWidget({this.currentplaceID='',required this.currentuserid});
+  String currentplaceID,currentuserid;
 
   @override
   _RecentWidgetState createState() => _RecentWidgetState();
@@ -412,25 +439,22 @@ class _RecentWidgetState extends State<RecentWidget> {
         if (!snapshot.hasData) {
           return Center(
             child: CircularProgressIndicator(
-              backgroundColor: Colors.black,
               valueColor: AlwaysStoppedAnimation(Colors.white),
             ),
           );
         }
         PlaceModel placeModel=PlaceModel.fromdoc(snapshot.data);
       return GestureDetector(
-        onTap: () {
+        onTap: () async{
+          String _usertype= await usersref.doc(widget.currentuserid).get().then((value) {return value.data()!['userType'];});
           setState(() {
-            RangeValues AVGcost=RangeValues(double.parse(placeModel.budgetmin), double.parse(placeModel.budgetmax));
+            double cost_per_person=placeModel.cost_per_person;
             Navigator.push(context, MaterialPageRoute(builder: (context) {
               return SafeArea(
-                child: EditPlace( widget.currentplaceID,AVGcost),
-                //PlaceMainPage(currentplaceID: widget.currentplaceID,),
-                // child: userType == usertype.user//todo
-                //     ? PlaceMainPage(widget.place)
-                //     : EditPlace(widget.place),
-              );
-            }));
+                child: _usertype == 'user'? PlaceMainPage(
+                  currentplaceID: widget.currentplaceID,currentuserID: widget.currentuserid,
+                ) :EditPlace(widget.currentplaceID, placeModel.cost_per_person, widget.currentuserid),
+              );            }));
           });
         },
         child: Padding(
@@ -448,7 +472,6 @@ class _RecentWidgetState extends State<RecentWidget> {
           ),
         ),
       );
-
       }
     );
   }

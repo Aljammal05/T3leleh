@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:t3leleh_v1/ProfilePage.dart';
+import 'package:t3leleh_v1/SettingsPage.dart';
 import 'package:t3leleh_v1/Tamplets/Templates.dart';
-import 'package:t3leleh_v1/Users/Users.dart';
+import 'package:t3leleh_v1/constans/constans.dart';
+import 'package:t3leleh_v1/Dialogs/Dialogs.dart';
 
 class EditInfoPage extends StatefulWidget {
+  EditInfoPage({this.currentuserid='',this.name=''});
+  String name,currentuserid;
   @override
   _EditInfoPageState createState() => _EditInfoPageState();
 }
 
 class _EditInfoPageState extends State<EditInfoPage> {
   var reg1city;
+  String _name='';
   @override
   Widget build(BuildContext context) {
     return SignInPageTemplate(
@@ -30,9 +34,8 @@ class _EditInfoPageState extends State<EditInfoPage> {
                 )),
             Padding(
               padding: const EdgeInsets.only(top: 8.0),
-              child: BuildTextField(Icons.person, //widget.t3user.username//todo
-                  '', false, (val) {
-                //widget.t3user.username = val;//todo
+              child: BuildTextField(Icons.person,widget.name, false, (val) {
+                _name=val;
               }),
             ),
             Padding(
@@ -80,7 +83,6 @@ class _EditInfoPageState extends State<EditInfoPage> {
                         onChanged: (val) {
                           setState(() {
                             reg1city = val;
-                          //  widget.t3user.usercity=val.toString();//todo
                           },
                           );
                         },
@@ -96,10 +98,34 @@ class _EditInfoPageState extends State<EditInfoPage> {
               child: GestureDetector(
                 onTap: () {
                   setState(() {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) {
-                      return SafeArea(child: ProfilePage());
-                    }));
+                    if (_name.isEmpty&&reg1city==null)
+                      showDialog<void>(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (context) => ErrorDialog(title: 'Invalid Input',
+                          text: 'You haven\'t make any changes,\nPlease try again. ',)
+                      );
+                      else {
+                      showDialog<void>(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (context) => WaitingDialog()
+                      );
+                      if (_name.isNotEmpty)
+                        usersref.doc(widget.currentuserid).update({
+                          'name': _name,
+                        });
+                      if (reg1city != null)
+                        usersref.doc(widget.currentuserid).update({
+                          'city': reg1city.toString()
+                        });
+                      Navigator.pop(context);
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) {
+                            return SafeArea(child: SettingPage(
+                              currentuserid: widget.currentuserid,));
+                          }));
+                    }
                   });
                 },
                 child: LinearColorBottom('SAVE'),

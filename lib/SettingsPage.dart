@@ -7,18 +7,42 @@ import 'package:t3leleh_v1/HelpPage.dart';
 import 'package:t3leleh_v1/MenuDrawerPage.dart';
 import 'package:t3leleh_v1/ProfilePage.dart';
 import 'package:t3leleh_v1/RatingPage.dart';
-import 'package:t3leleh_v1/Users/Users.dart';
+import 'package:t3leleh_v1/constans/constans.dart';
 
 class SettingPage extends StatefulWidget {
+  SettingPage({this.currentuserid=''});
+  String currentuserid;
   @override
   _SettingPageState createState() => _SettingPageState();
 }
 
 class _SettingPageState extends State<SettingPage> {
+  String _name='',_email='',_usertype='';
   @override
+  void initState(){
+    super.initState();
+    getuser();
+  }
+  getuser()async{
+    var user = await usersref.doc(widget.currentuserid).get();
+    setState(() {
+      _name=user.data()!['name'];
+      _email=user.data()!['email'];
+      _usertype=user.data()!['userType'];
+    });
+
+  }
   Widget build(BuildContext context) {
+    if (_usertype.isEmpty) {
+      return Center(
+        child: CircularProgressIndicator(
+          backgroundColor: Color(0x00ffffff),
+          valueColor: AlwaysStoppedAnimation( Color(0x00ffffff)),
+        ),
+      );
+    }
     return Scaffold(
-      drawer: MenuDrawerPage(),
+      drawer: MenuDrawerPage(currentuserid: widget.currentuserid,),
       body: Builder(
         builder: (context) => Container(
           decoration: BoxDecoration(
@@ -42,14 +66,12 @@ class _SettingPageState extends State<SettingPage> {
                       flex: 1,
                       child: GestureDetector(
                         onTap: () {
-                          setState(() {
-                            Scaffold.of(context).openDrawer();
-                          });
+                          Navigator.pop(context);
                         },
                         child: Icon(
-                          Icons.menu,
+                          Icons.arrow_back,
                           color: Colors.white,
-                          size: 30,
+                          size: 35,
                         ),
                       ),
                     ),
@@ -80,15 +102,13 @@ class _SettingPageState extends State<SettingPage> {
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
                             SettingsContainer(
-                                Icons.edit, EditInfoPage(), 'Me','',//todo
-                          // widget.t3user.username
+                                Icons.edit, EditInfoPage(currentuserid: widget.currentuserid,name: _name,), 'Me',_name.length>15?_name.substring(0,15)+'...':_name
                           ),
-                            SettingsContainer(Icons.person, ProfilePage(),
-                                'Profile','',//todo
-                              // widget.t3user.useremail.substring(0,15)
+                            SettingsContainer(Icons.person, ProfilePage(currentuserid: widget.currentuserid,),
+                                'Profile',_email.length>15?_email.substring(0,15)+'...':_email
                             ),
                             SettingsContainer(Icons.star_rate_rounded,
-                                RatingPage(), 'Rate Us', 'Feedback , ...'),
+                                RatingPage(currentuserID: widget.currentuserid,), 'Rate Us', 'Feedback , ...'),
                           ],
                         ),
                       ),
@@ -100,12 +120,12 @@ class _SettingPageState extends State<SettingPage> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            SettingsContainer(Icons.settings, GeneralSettings(),
+                            SettingsContainer(Icons.settings, GeneralSettings(currentuserid: widget.currentuserid,type: _usertype,),
                                 'General', 'Clear history , ...'),
-                            SettingsContainer(Icons.lock, ChangePasswordPage(),
+                            SettingsContainer(Icons.lock, ChangePasswordPage(currentuserid: widget.currentuserid,),
                                 'Security', 'Change Password '),
                             SettingsContainer(
-                                Icons.help, HelpPage(), 'Help', 'Questions ?'),
+                                Icons.help, HelpPage(type: _usertype,), 'Help', 'Questions ?'),
                           ],
                         ),
                       ),
