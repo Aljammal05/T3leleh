@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:t3leleh_v1/Admin/AcceptedPlaces.dart';
 import 'package:t3leleh_v1/Admin/AdminFeedBack.dart';
 import 'package:t3leleh_v1/Admin/PendingPlaces.dart';
@@ -28,7 +29,9 @@ class _AdminDashBoardState extends State<AdminDashBoard> {
           leading: Padding(
             padding: const EdgeInsets.all(15.0),
             child: IconButton(
-              onPressed: () {
+              onPressed: () async{
+                SharedPreferences pref =await SharedPreferences.getInstance();
+                pref.clear();
                 final _auth = FirebaseAuth.instance;
                 _auth.signOut();
                 Navigator.push(context, MaterialPageRoute(builder: (context) {

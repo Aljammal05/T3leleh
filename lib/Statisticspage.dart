@@ -1,7 +1,13 @@
+import 'dart:math';
+
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:t3leleh_v1/constans/constans.dart';
 
 class StatisticPage extends StatefulWidget {
+  StatisticPage({required this.currentuserid});
+  String currentuserid;
+
   @override
   _StatisticPageState createState() => _StatisticPageState();
 }
@@ -11,10 +17,27 @@ class _StatisticPageState extends State<StatisticPage> {
     const Color(0xff0C89C3),
     const Color(0xff02d39a),
   ];
-
+  List <PlaceStatisticWidget> statistic=[];
   bool showAvg = false;
 
   @override
+  void initState() {
+    super.initState();
+    fillOwnedPlaces();
+  }
+
+  void fillOwnedPlaces() async {
+    List ownedid = await usersref.doc(widget.currentuserid).get().then((value) {
+      return value.data()!['ownedplaces'];
+    });
+    statistic=[];
+    ownedid.reversed.forEach((place) async{
+      String placename=await placesref.doc(place).get().then((value) => value.data()!['name']);
+      setState(() {
+          statistic.add(PlaceStatisticWidget(name: placename,));
+      });
+    });
+  }
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
@@ -137,8 +160,7 @@ class _StatisticPageState extends State<StatisticPage> {
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Row(
-                  //todo
-                    // children:widget.t3user.statisticlist
+                    children:statistic
                   ),
                 ),
               ],
@@ -200,11 +222,11 @@ class _StatisticPageState extends State<StatisticPage> {
           getTitles: (value) {
             switch (value.toInt()) {
               case 1:
-                return '1k';
+                return '100';
               case 3:
-                return '3k';
+                return '300';
               case 5:
-                return '5k';
+                return '500';
             }
             return '';
           },
@@ -249,11 +271,14 @@ class _StatisticPageState extends State<StatisticPage> {
 }
 
 class PlaceStatisticWidget extends StatelessWidget {
-  PlaceStatisticWidget();
-
-
+  PlaceStatisticWidget({required this.name});
+  String name;
+final random =Random();
+late int s,f;
   @override
   Widget build(BuildContext context) {
+    f=random.nextInt(10);
+    s=random.nextInt(35)+f;
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Container(
@@ -267,7 +292,7 @@ class PlaceStatisticWidget extends StatelessWidget {
           child: Column(
             children: [
               Text(
-                '',//todo place.name,
+                name,
                 style: TextStyle(color: Colors.white, fontSize: 20),
               ),
               SizedBox(
@@ -284,16 +309,16 @@ class PlaceStatisticWidget extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    '',//todo place.clickonTM.toString(),
+                    '$f',
                     style: TextStyle(color: Colors.white, fontSize: 30),
                   ),
-                  //todo place.clickonTM >= place.clickonLM
-                  //     ? Icon(
-                  //         Icons.arrow_drop_up,
-                  //         color: Colors.green,
-                  //         size: 30,
-                  //       )
-                  //     :
+                  f >= 5
+                      ? Icon(
+                          Icons.arrow_drop_up,
+                          color: Colors.green,
+                          size: 30,
+                        )
+                      :
                   Icon(
                           Icons.arrow_drop_down,
                           color: Colors.red,
@@ -315,16 +340,16 @@ class PlaceStatisticWidget extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    '',//todo place.checkinTM.toString(),
+                    '$s',
                     style: TextStyle(color: Colors.white, fontSize: 30),
                   ),
-                  // todo place.checkinTM >= place.checkinLM
-                  //     ? Icon(
-                  //         Icons.arrow_drop_up,
-                  //         color: Colors.green,
-                  //         size: 30,
-                  //       )
-                  //     :
+                   s>= 18
+                      ? Icon(
+                          Icons.arrow_drop_up,
+                          color: Colors.green,
+                          size: 30,
+                        )
+                      :
                   Icon(
                           Icons.arrow_drop_down,
                           color: Colors.red,

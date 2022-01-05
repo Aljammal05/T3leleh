@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:get/get_connect/http/src/status/http_status.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:t3leleh_v1/GeneralSettings.dart';
 import 'package:t3leleh_v1/GoogleMapGetDirection.dart';
 import 'package:t3leleh_v1/Tamplets/Templates.dart';
 import 'package:t3leleh_v1/constans/constans.dart';
@@ -14,10 +16,10 @@ class PlaceMainPage extends StatefulWidget {
   _PlaceMainPageState createState() => _PlaceMainPageState();
 }
 
-int rate = 0, terrible = 1, bad = 1, okay = 1, good = 1, great = 1;
-double ratesum = calculaterate();
+
 
 class _PlaceMainPageState extends State<PlaceMainPage> {
+  int rate = 0, terrible = 1, bad = 1, okay = 1, good = 1, great = 1;
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
@@ -32,6 +34,14 @@ class _PlaceMainPageState extends State<PlaceMainPage> {
           );
         };
         PlaceModel placeModel= PlaceModel.fromdoc(snapshot.data);
+
+          if(placeModel.cost_per_person.round()%3==0)
+            okay=16;
+          else if(placeModel.cost_per_person.round()%3==1)
+            good=16;
+          else great=16;
+
+
         return ImageContainerStackTemplate(
           NetworkImage(placeModel.placepicURl),
           Column(
@@ -97,8 +107,12 @@ class _PlaceMainPageState extends State<PlaceMainPage> {
                       style: TextStyle(fontSize: 20, color: Colors.white),
                     ),
                     Text(
-                      placeModel.cost_per_person.round().toString() ,
+                      currencytoggle ==0?placeModel.cost_per_person.round().toString() :(placeModel.cost_per_person.round()*1.4).toStringAsFixed(1),
                       style: TextStyle(fontSize: 35, color: Colors.white),
+                    ),
+                    Text(
+                      currencytoggle ==0?' JD':' USD',
+                      style: TextStyle(fontSize: 25, color: Colors.white,fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
@@ -183,14 +197,14 @@ class _PlaceMainPageState extends State<PlaceMainPage> {
                 child: GestureDetector(
                   onTap: () {
                     setState(() {
-                      //todo
+
                       usersref.doc(widget.currentuserID).update(
                           {'recentlyvisited':FieldValue.arrayUnion([widget.currentplaceID])});
                       Navigator.push(context, MaterialPageRoute(builder: (
                           context) {
                         return SafeArea(child: MapGetDirection(LatLng(placeModel.lat,placeModel.lng),placeModel.name));
                       }));
-                      // profreclist.add(RecentWidget(placeslist[widget.plac.placeid]));//todo
+
                     });
                   },
                   child: LinearColorBottom('GET LOCATION'),
@@ -398,6 +412,91 @@ class _PlaceMainPageState extends State<PlaceMainPage> {
       }
     );
   }
+
+  double calculateratepercentage(int val) {
+    return val / (terrible + bad + okay + good + great);
+  }
+
+  double calculaterate() {
+    return calculateratesum() / (terrible + bad + okay + good + great);
+  }
+
+  int calculateratesum() {
+    return (terrible + (bad * 2) + (okay * 3) + (good * 4) + (great * 5));
+  }
+
+  IconData rateicon() {
+    switch (calculaterate().round()) {
+      case 1:
+        return FontAwesomeIcons.solidAngry;
+      case 2:
+        return FontAwesomeIcons.solidFrown;
+      case 3:
+        return FontAwesomeIcons.solidMeh;
+      case 4:
+        return FontAwesomeIcons.solidSmile;
+      case 5:
+        return FontAwesomeIcons.solidGrinBeam;
+      default:
+        return FontAwesomeIcons.solidMeh;
+    }
+  }
+
+  String ratetitle() {
+    switch (calculaterate().round()) {
+      case 1:
+        return 'Terrible';
+      case 2:
+        return 'Bad';
+      case 3:
+        return 'Okay';
+      case 4:
+        return 'Good';
+      case 5:
+        return 'Great';
+      default:
+        return '';
+    }
+  }
+
+  void ratepalance(int x) {
+    switch (rate) {
+      case 1:
+        terrible--;
+        break;
+      case 2:
+        bad--;
+        break;
+      case 3:
+        okay--;
+        break;
+      case 4:
+        good--;
+        break;
+      case 5:
+        great--;
+        break;
+    }
+    if (x == rate) return;
+    switch (x) {
+      case 1:
+        terrible++;
+        break;
+      case 2:
+        bad++;
+        break;
+      case 3:
+        okay++;
+        break;
+      case 4:
+        good++;
+        break;
+      case 5:
+        great++;
+        break;
+    }
+  }
+
 }
 
 class Ratingbutton extends StatelessWidget {
@@ -424,89 +523,5 @@ class Ratingbutton extends StatelessWidget {
         )
       ],
     );
-  }
-}
-
-double calculateratepercentage(int val) {
-  return val / (terrible + bad + okay + good + great);
-}
-
-double calculaterate() {
-  return calculateratesum() / (terrible + bad + okay + good + great);
-}
-
-int calculateratesum() {
-  return (terrible + (bad * 2) + (okay * 3) + (good * 4) + (great * 5));
-}
-
-IconData rateicon() {
-  switch (calculaterate().floor()) {
-    case 1:
-      return FontAwesomeIcons.solidAngry;
-    case 2:
-      return FontAwesomeIcons.solidFrown;
-    case 3:
-      return FontAwesomeIcons.solidMeh;
-    case 4:
-      return FontAwesomeIcons.solidSmile;
-    case 5:
-      return FontAwesomeIcons.solidGrinBeam;
-    default:
-      return FontAwesomeIcons.solidMeh;
-  }
-}
-
-String ratetitle() {
-  switch (calculaterate().floor()) {
-    case 1:
-      return 'Terrible';
-    case 2:
-      return 'Bad';
-    case 3:
-      return 'Okay';
-    case 4:
-      return 'Good';
-    case 5:
-      return 'Great';
-    default:
-      return '';
-  }
-}
-
-void ratepalance(int x) {
-  switch (rate) {
-    case 1:
-      terrible--;
-      break;
-    case 2:
-      bad--;
-      break;
-    case 3:
-      okay--;
-      break;
-    case 4:
-      good--;
-      break;
-    case 5:
-      great--;
-      break;
-  }
-  if (x == rate) return;
-  switch (x) {
-    case 1:
-      terrible++;
-      break;
-    case 2:
-      bad++;
-      break;
-    case 3:
-      okay++;
-      break;
-    case 4:
-      good++;
-      break;
-    case 5:
-      great++;
-      break;
   }
 }

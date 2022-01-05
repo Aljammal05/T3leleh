@@ -1,6 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:t3leleh_v1/DashboardPage.dart';
+import 'package:t3leleh_v1/Dialogs/Dialogs.dart';
+import 'package:t3leleh_v1/OwnedPlacespage.dart';
 import 'package:t3leleh_v1/Tamplets/Templates.dart';
+import 'package:t3leleh_v1/constans/constans.dart';
 
 class GeneralSettings extends StatefulWidget {
   GeneralSettings({this.currentuserid='',this.type=''});
@@ -8,7 +13,9 @@ class GeneralSettings extends StatefulWidget {
   @override
   _GeneralSettingsState createState() => _GeneralSettingsState();
 }
-int currencytoggle = 1;
+int currencytoggle = 0,autologintoggle=0;
+
+
 class _GeneralSettingsState extends State<GeneralSettings> {
 
   @override
@@ -85,29 +92,61 @@ class _GeneralSettingsState extends State<GeneralSettings> {
                     padding: const EdgeInsets.only(left: 32.0, top: 32),
                     child: GestureDetector(
                       onTap: (){
-                        setState(() {
-                          //todo
-                          // if (widget.t3user.type==usertype.owner){
-                          // widget.t3user.ownedlist1.clear();
-                          // widget.t3user.ownedlist2.clear();
-                          // widget.t3user.profownedlist.clear();
-                          // Navigator.push(context, MaterialPageRoute(builder: (context) {
-                          //   return SafeArea(
-                          //     child: OwnedPlacesPage(),
-                          //   );
-                          // }));}
-                          // else{
-                          //   profreclist.clear();
-                          //   proffavlist.clear();
-                          //   favlist1.clear();
-                          //   favlist2.clear();Navigator.push(context, MaterialPageRoute(builder: (context) {
-                          //     return SafeArea(
-                          //       child: DashboardPage(),
-                          //     );
-                          //   }));
-                          // }
+                        showDialog<void>(
+                            context: context,
+                            barrierDismissible: false,
+                            builder: (context) => WarningDialog(
+                                title:  widget.type == 'user'
+                                    ? 'Clear History'
+                                    : 'Clear Data',
+                                text:
+                                'Are you sure you want to Clear your\ndata? This will permanently erase\nall your action history.',
+                                buttontext: 'Delete',
+                                action: () async {
+                                  try {
+                                    if(widget.type=='owner'){
+                                      List ownedplaces=await usersref.doc(widget.currentuserid).get().then((value) => value.data()!['ownedplaces']);
+                                      ownedplaces.forEach((place) {placesref.doc(place).delete(); });
+                                    }
+                                    await usersref.doc(widget.currentuserid).update({
+                                      'favoriteplaces':[],
+                                      'ownedplaces':[],
+                                      'recentlyvisited':[]
 
-                        });
+                                    });
+
+                                    Navigator.push(context, MaterialPageRoute(builder: (context) {
+                                      return SafeArea(
+                                        child: widget.type=='owner'?OwnedPlacesPage(currentuserid: widget.currentuserid,):DashboardPage(currentuserid: widget.currentuserid,),
+                                      );
+                                    }));
+                                  } catch (e) {
+                                    print(e);
+                                  }
+                                }));
+
+                        //
+                        // setState(() async{
+                        //   if(widget.type=='owner'){
+                        //     List ownedplaces=await usersref.doc(widget.currentuserid).get().then((value) => value.data()!['ownedplaces']);
+                        //     ownedplaces.forEach((place) {placesref.doc(place).delete(); });
+                        //   }
+                        //  await usersref.doc(widget.currentuserid).update({
+                        //     'favoriteplaces':[],
+                        //     'ownedplaces':[],
+                        //     'recentlyvisited':[]
+                        //
+                        //   });
+                        //
+                        //   Navigator.push(context, MaterialPageRoute(builder: (context) {
+                        //     return SafeArea(
+                        //       child: widget.type=='owner'?OwnedPlacesPage(currentuserid: widget.currentuserid,):DashboardPage(currentuserid: widget.currentuserid,),
+                        //     );
+                        //   }));
+                        //
+                        //
+                        //
+                        // });
                       },
                       child: Text(
                         widget.type == 'user'
@@ -130,48 +169,7 @@ class _GeneralSettingsState extends State<GeneralSettings> {
                       style: TextStyle(color: Colors.grey.shade500),
                     ),
                   ),
-                 /* Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    child: Divider(
-                      color: Colors.grey.shade400,
-                      thickness: 1,
-                    ),
-                  ),
-                  userType == usertype.user
-                      ? Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 30.0, vertical: 35),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'Temperature unit',
-                                style: TextStyle(
-                                    color: Colors.grey.shade600, fontSize: 20),
-                              ),
-                              Material(
-                                elevation: 4,
-                                shadowColor: Colors.grey,
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(90)),
-                                child: AnimatedToggle(['F°', 'C°'], (value) {
-                                  setState(() {
-                                    _toggleValue = value;
-                                    print(_toggleValue);
-                                  });
-                                },
-                                    const Color(0xFFffffff),
-                                    const Color(0xFFffffff),
-                                    118,
-                                    25.5,
-                                    17,
-                                    14,
-                                    20),
-                              ),
-                            ],
-                          ),
-                        )
-                      : Container(),*/
+
 
                        Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -196,9 +194,52 @@ class _GeneralSettingsState extends State<GeneralSettings> {
                           elevation: 4,
                           shadowColor: Colors.grey,
                           borderRadius: BorderRadius.all(Radius.circular(90)),
-                          child: AnimatedToggle(['J.D', 'USD'], (value) {
+                          child: AnimatedToggle(
+                            currencytoggle==0?true:false,
+                              ['J.D', 'USD'], (value) {
                             setState(() {
                               currencytoggle = value;
+                            });
+                          }, const Color(0xFFffffff), const Color(0xffffffff),
+                              118, 25.5, 17, 14, 20),
+                        ),
+                      ],
+                    ),
+                  ),
+
+
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Divider(
+                      color: Colors.grey.shade400,
+                      thickness: 1,
+                    ),
+                  )
+                  ,
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 30.0, vertical: 35),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Auto Login',
+                          style: TextStyle(
+                              color: Colors.grey.shade600, fontSize: 20),
+                        ),
+                        Material(
+                          elevation: 4,
+                          shadowColor: Colors.grey,
+                          borderRadius: BorderRadius.all(Radius.circular(90)),
+                          child: AnimatedToggle(
+                              autologintoggle==0?true:false,
+                              ['ON', 'OFF'], (value) async{
+                            SharedPreferences pref =await SharedPreferences.getInstance();
+                            pref.clear();
+                            setState(() {
+
+
+                              autologintoggle = value;
                             });
                           }, const Color(0xFFffffff), const Color(0xffffffff),
                               118, 25.5, 17, 14, 20),

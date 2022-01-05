@@ -39,10 +39,18 @@ class _PasswordRecoveryPageState extends State<PasswordRecoveryPage> {
           return SafeArea(child: SignInPage());
         })); //Success, do something
       }).catchError((error) {
-        print('fail'); //Error, show something todo
+        Navigator.pop(context);
+        showDialog<void>(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) => ErrorDialog(title: 'ERROR',text: error.toString(),));
       });
     }).catchError((err) {
-      print(err);
+      Navigator.pop(context);
+      showDialog<void>(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => ErrorDialog(title: 'ERROR',text: err.toString(),));
     });
   }
 

@@ -15,11 +15,11 @@ class RatingPage extends StatefulWidget {
 
 class _RatingPageState extends State<RatingPage> {
   int rateapp = 0,
-      terribleapp = 3,
+      terribleapp = 1,
       badapp = 1,
       okayapp = 1,
-      goodapp = 4,
-      greatapp = 13;
+      goodapp = 3,
+      greatapp = 3;
   String feedback='';
   @override
   void ratepalance(int x) {
@@ -356,13 +356,13 @@ class _RatingPageState extends State<RatingPage> {
                           Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Icon(
-                              rateiconapp(calculaterateapp().floor()),
+                              rateiconapp(calculaterateapp().round()),
                               color: Colors.white,
                               size: 50,
                             ),
                           ),
                           Text(
-                            ratetitleapp(calculaterateapp().floor()),
+                            ratetitleapp(calculaterateapp().round()),
                             style: TextStyle(fontSize: 18, color: Colors.white),
                           )
                         ],
@@ -427,14 +427,12 @@ class _RatingPageState extends State<RatingPage> {
                                 {
                                   'rating': ratetitleapp(rateapp),
                                   'feedback': feedback,
-                                });
+                                }).catchError((onError){
+                                  print(onError);
+                            });
                           }
                           catch(e){print(e);}
-                          //todo
-                          Navigator.push(context,
-                              MaterialPageRoute(builder: (context) {
-                            return SafeArea(child: SettingPage(currentuserid: widget.currentuserID,));
-                          }));
+                          Navigator.pop(context);
                         });
                       },
                       child: LinearColorBottom('SUBMIT')),

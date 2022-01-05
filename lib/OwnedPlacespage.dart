@@ -49,7 +49,7 @@ class _OwnedPlacesPageState extends State<OwnedPlacesPage> {
           'image/waterfall-wallpaper.jpg',
           'Owned Places',
           FontAwesomeIcons.chartLine,
-          StatisticPage(),
+          StatisticPage(currentuserid: widget.currentuserid,),
           Padding( padding: const EdgeInsets.all(8.0),
             child: Container(
               child: Column(

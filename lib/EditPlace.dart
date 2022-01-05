@@ -1,10 +1,9 @@
-import 'dart:math';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:t3leleh_v1/Dialogs/Dialogs.dart';
+import 'package:t3leleh_v1/GeneralSettings.dart';
 import 'package:t3leleh_v1/OwnedPlacespage.dart';
-import 'package:t3leleh_v1/ProfilePage.dart';
 import 'package:t3leleh_v1/Services/StorageService.dart';
 import 'package:t3leleh_v1/Tamplets/Templates.dart';
 import 'package:t3leleh_v1/constans/constans.dart';
@@ -78,20 +77,21 @@ class _EditPlaceState extends State<EditPlace> {
                       ),
                       GestureDetector(
                         onTap: () {
-                          setState(() {
-                            // widget.t3user.profownedlist.removeLast();//todo
-                            // widget.t3user.ownedlist1.removeLast();
-                            // widget.t3user.statisticlist.removeLast();
-                            // placeslist.removeLast();
-                            // dashlist1.removeLast();
+                          try {
+                            placesref.doc(widget.currentplaceID).delete();
+                            usersref.doc(widget.currentuserid).update({
+                              'ownedplaces':FieldValue.arrayRemove([widget.currentplaceID])
+                            });
                             Navigator.push(context,
                                 MaterialPageRoute(builder: (context) {
-                              return SafeArea(
-                                  child: OwnedPlacesPage(
-                                currentuserid: widget.currentuserid,
-                              ));
-                            }));
-                          });
+                                  return SafeArea(
+                                      child: OwnedPlacesPage(
+                                        currentuserid: widget.currentuserid,
+                                      ));
+                                }));
+                          }catch(e){
+                            print(e);
+                          }
                         },
                         child: Icon(
                           Icons.delete,
@@ -120,14 +120,6 @@ class _EditPlaceState extends State<EditPlace> {
                             setState(() {
                               _img = File(pickedimage!.path);
                             });
-                            // String url =
-                            //     await StorageService.uploadPlacePicture(
-                            //         placeModel.placepicURl, img);
-                            // setState(() {
-                            //   placesref.doc(widget.currentplaceID).update({
-                            //     'placepicURL': url,
-                            //   });
-                            // });
                           },
                           child: Icon(
                             Icons.camera_alt,
@@ -143,13 +135,6 @@ class _EditPlaceState extends State<EditPlace> {
                           setState(() {
                             _img = File(pickedimage!.path);
                           });
-                          // String url = await StorageService.uploadPlacePicture(
-                          //     placeModel.placepicURl, img);
-                          // setState(() {
-                          //   placesref.doc(widget.currentplaceID).update({
-                          //     'placepicURL': url,
-                          //   });
-                          // });
                         },
                         child: Icon(
                           Icons.add_photo_alternate,
@@ -233,15 +218,12 @@ class _EditPlaceState extends State<EditPlace> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          widget.cost_per_person.round().toString(),
-                          style: TextStyle(color: Colors.white, fontSize: 33),
+                          currencytoggle ==0?widget.cost_per_person.round().toString() :(widget.cost_per_person.round()*1.4).toStringAsFixed(1),
+                          style: TextStyle(fontSize: 35, color: Colors.white),
                         ),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(
-                            'JD',
-                            style: TextStyle(color: Colors.white, fontSize: 18),
-                          ),
+                        Text(
+                          currencytoggle ==0?' JD':' USD',
+                          style: TextStyle(fontSize: 25, color: Colors.white,fontWeight: FontWeight.bold),
                         ),
                       ],
                     ),
@@ -388,9 +370,7 @@ class _EditPlaceState extends State<EditPlace> {
                             Navigator.push(context,
                                 MaterialPageRoute(builder: (context) {
                               return SafeArea(
-                                  child: ProfilePage(
-                                currentuserid:widget.currentuserid,
-                              ));
+                                  child: OwnedPlacesPage(currentuserid: widget.currentuserid,));
                               // OwnedPlacesPage());
                             }));
                           });

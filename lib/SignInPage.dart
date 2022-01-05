@@ -96,6 +96,7 @@ class _SignInPageState extends State<SignInPage> {
                      currentuserid = await _auth.currentUser!.uid;
                     pref.setString('userID', currentuserid);
                   var db = await usersref.doc(currentuserid).get();
+                    pref.setString('userType',db['userType']);
                     Navigator.pop(context);
                     Navigator.push(context,
                         MaterialPageRoute(builder: (context) {
@@ -104,7 +105,7 @@ class _SignInPageState extends State<SignInPage> {
                             ? DashboardPage(
                                 currentuserid: currentuserid,
                               )
-                            : db['userType'] == 'owner'
+                             : db['userType'] == 'owner'
                                 ? OwnedPlacesPage(
                                     currentuserid: currentuserid,
                                   )

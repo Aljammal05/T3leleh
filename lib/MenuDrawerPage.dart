@@ -48,9 +48,11 @@ class _MenuDrawerPageState extends State<MenuDrawerPage> {
         ),
       );
     }
+    MediaQueryData mq = MediaQuery.of(context);
     return Drawer(
       child: SingleChildScrollView(
         child: Container(
+          height: mq.size.height,
           decoration: BoxDecoration(
               gradient: LinearGradient(
             begin: Alignment.topCenter,
@@ -152,7 +154,7 @@ class _MenuDrawerPageState extends State<MenuDrawerPage> {
                           ProfilePage(
                             currentuserid: widget.currentuserid,
                           ),
-                          () {}), //todo
+                          () {}),
                     ),
                   ],
                 ),
@@ -168,7 +170,7 @@ class _MenuDrawerPageState extends State<MenuDrawerPage> {
                                 ),
                                 () {})
                             : MenuContainer(FontAwesomeIcons.chartLine,
-                                StatisticPage(), () {})),
+                                StatisticPage(currentuserid: widget.currentuserid,), () {})),
                     Expanded(
                       flex: 1,
                       child: MenuContainer(

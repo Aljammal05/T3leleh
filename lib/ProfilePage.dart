@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:t3leleh_v1/AddPlace.dart';
 import 'package:t3leleh_v1/DashboardPage.dart';
 import 'package:t3leleh_v1/Dialogs/Dialogs.dart';
@@ -22,28 +23,49 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
- void initState(){
+  void initState() {
     super.initState();
     fillOwnedPlaces();
     fillFavoritePlaces();
     fillRecentlyVisited();
-
   }
-void fillOwnedPlaces()async{
-  ownedplacesw=[];
- List ownedid= await usersref.doc(widget.currentuserid).get().then((value) {return value.data()!['ownedplaces'];});
-ownedid.forEach((element) { ownedplacesw.add(RecentWidget(currentplaceID: element,currentuserid: widget.currentuserid,));});
-}
- void fillFavoritePlaces()async{
-   favoriteplaces=[];
-   List favid= await usersref.doc(widget.currentuserid).get().then((value) {return value.data()!['favoriteplaces'];});
-   favid.forEach((element) { favoriteplaces.add(RecentWidget(currentplaceID: element,currentuserid: widget.currentuserid));});
- }
- void fillRecentlyVisited()async{
-   recentlyvisited=[];
-   List recentid= await usersref.doc(widget.currentuserid).get().then((value) {return value.data()!['recentlyvisited'];});
-   recentid.forEach((element) { recentlyvisited.add(RecentWidget(currentplaceID: element,currentuserid: widget.currentuserid));});
- }
+
+  void fillOwnedPlaces() async {
+    ownedplacesw = [];
+    List ownedid = await usersref.doc(widget.currentuserid).get().then((value) {
+      return value.data()!['ownedplaces'];
+    });
+    ownedid.forEach((element) {
+      ownedplacesw.add(RecentWidget(
+        currentplaceID: element,
+        currentuserid: widget.currentuserid,
+      ));
+    });
+  }
+
+  void fillFavoritePlaces() async {
+    favoriteplaces = [];
+    List favid = await usersref.doc(widget.currentuserid).get().then((value) {
+      return value.data()!['favoriteplaces'];
+    });
+    favid.forEach((element) {
+      favoriteplaces.add(RecentWidget(
+          currentplaceID: element, currentuserid: widget.currentuserid));
+    });
+  }
+
+  void fillRecentlyVisited() async {
+    recentlyvisited = [];
+    List recentid =
+        await usersref.doc(widget.currentuserid).get().then((value) {
+      return value.data()!['recentlyvisited'];
+    });
+    recentid.forEach((element) {
+      recentlyvisited.add(RecentWidget(
+          currentplaceID: element, currentuserid: widget.currentuserid));
+    });
+  }
+
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Color(0x00ffffff),
@@ -53,11 +75,12 @@ ownedid.forEach((element) { ownedplacesw.add(RecentWidget(currentplaceID: elemen
           if (!snapshot.hasData) {
             return Center(
               child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation(Colors.white),
+                valueColor: AlwaysStoppedAnimation(Colors.white),
               ),
             );
           }
           UserModel userModel = UserModel.fromdoc(snapshot.data);
+          MediaQueryData mq = MediaQuery.of(context);
           return ImageContainerStackTemplate(
               userModel.ProfilePicURL.isNotEmpty
                   ? NetworkImage(userModel.ProfilePicURL)
@@ -100,11 +123,13 @@ ownedid.forEach((element) { ownedplacesw.add(RecentWidget(currentplaceID: elemen
                               final PickedFile? image = await ImagePicker()
                                   .getImage(source: ImageSource.camera);
                               File img = File(image!.path);
-                              String url=await StorageService.uploadProfilePicture(userModel.ProfilePicURL, img);
+                              String url =
+                                  await StorageService.uploadProfilePicture(
+                                      userModel.ProfilePicURL, img);
                               setState(() {
-                                usersref.doc(widget.currentuserid).update({
-                                  'ProfilePicURL':url
-                                });
+                                usersref
+                                    .doc(widget.currentuserid)
+                                    .update({'ProfilePicURL': url});
                               });
                             },
                             child: Icon(
@@ -131,11 +156,13 @@ ownedid.forEach((element) { ownedplacesw.add(RecentWidget(currentplaceID: elemen
                             final PickedFile? image = await ImagePicker()
                                 .getImage(source: ImageSource.gallery);
                             File img = File(image!.path);
-                            String url=await StorageService.uploadProfilePicture(userModel.ProfilePicURL, img);
+                            String url =
+                                await StorageService.uploadProfilePicture(
+                                    userModel.ProfilePicURL, img);
                             setState(() {
-                              usersref.doc(widget.currentuserid).update({
-                                'ProfilePicURL':url
-                              });
+                              usersref
+                                  .doc(widget.currentuserid)
+                                  .update({'ProfilePicURL': url});
                             });
                           },
                           child: Icon(
@@ -181,7 +208,9 @@ ownedid.forEach((element) { ownedplacesw.add(RecentWidget(currentplaceID: elemen
                               Navigator.push(context,
                                   MaterialPageRoute(builder: (context) {
                                 return SafeArea(
-                                  child: EditEmailPage(currentuserid: widget.currentuserid,email : userModel.email),
+                                  child: EditEmailPage(
+                                      currentuserid: widget.currentuserid,
+                                      email: userModel.email),
                                 );
                               }));
                             });
@@ -216,7 +245,7 @@ ownedid.forEach((element) { ownedplacesw.add(RecentWidget(currentplaceID: elemen
                         style: TextStyle(fontSize: 18, color: Colors.white),
                       ),
                     ),
-                    userModel.userType=='user'
+                    userModel.userType == 'user'
                         ? Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -243,7 +272,10 @@ ownedid.forEach((element) { ownedplacesw.add(RecentWidget(currentplaceID: elemen
                                               MaterialPageRoute(
                                                   builder: (context) {
                                             return SafeArea(
-                                              child: DashboardPage(currentuserid: widget.currentuserid,),
+                                              child: DashboardPage(
+                                                currentuserid:
+                                                    widget.currentuserid,
+                                              ),
                                             );
                                           }));
                                         });
@@ -266,7 +298,8 @@ ownedid.forEach((element) { ownedplacesw.add(RecentWidget(currentplaceID: elemen
                                       ),
                                     ),
                                     Row(
-                                      children: recentlyvisited.reversed.toList(),
+                                      children:
+                                          recentlyvisited.reversed.toList(),
                                     )
                                   ],
                                 ),
@@ -294,7 +327,10 @@ ownedid.forEach((element) { ownedplacesw.add(RecentWidget(currentplaceID: elemen
                                               MaterialPageRoute(
                                                   builder: (context) {
                                             return SafeArea(
-                                              child: DashboardPage(currentuserid: widget.currentuserid,),
+                                              child: DashboardPage(
+                                                currentuserid:
+                                                    widget.currentuserid,
+                                              ),
                                             );
                                           }));
                                         });
@@ -317,98 +353,125 @@ ownedid.forEach((element) { ownedplacesw.add(RecentWidget(currentplaceID: elemen
                                       ),
                                     ),
                                     Row(
-                                      children: favoriteplaces.reversed.toList(),
+                                      children:
+                                          favoriteplaces.reversed.toList(),
                                     )
                                   ],
                                 ),
                               )
                             ],
                           )
-                        : userModel.userType=='owner'
-                        ? Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                ' Owned Places',
-                                style: TextStyle(
-                                    fontSize: 18, color: Colors.white),
-                              ),
-                              Container(
-                                height: 15,
-                                child: Divider(
-                                  color: Colors.white,
-                                  thickness: 1,
-                                ),
-                              ),
-                              SingleChildScrollView(
-                                scrollDirection: Axis.horizontal,
-                                child: Row(
-                                  children: [
-                                    GestureDetector(
-                                      onTap: () {
-                                        setState(() {
-                                          Navigator.push(context,
-                                              MaterialPageRoute(
-                                                  builder: (context) {
-                                            return SafeArea(
-                                              child: AddPlace(currentuserid: widget.currentuserid,),
-                                            );
-                                          }));
-                                        });
-                                      },
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Container(
-                                          height: 125,
-                                          width: 100,
-                                          decoration: BoxDecoration(
-                                              color: Color(0x66ffffff),
-                                              borderRadius: BorderRadius.all(
-                                                  Radius.circular(20))),
-                                          child: Icon(
-                                            Icons.add,
-                                            size: 40,
-                                            color: Colors.white,
+                        : userModel.userType == 'owner'
+                            ? Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    ' Owned Places',
+                                    style: TextStyle(
+                                        fontSize: 18, color: Colors.white),
+                                  ),
+                                  Container(
+                                    height: 15,
+                                    child: Divider(
+                                      color: Colors.white,
+                                      thickness: 1,
+                                    ),
+                                  ),
+                                  SingleChildScrollView(
+                                    scrollDirection: Axis.horizontal,
+                                    child: Row(
+                                      children: [
+                                        GestureDetector(
+                                          onTap: () {
+                                            setState(() {
+                                              Navigator.push(context,
+                                                  MaterialPageRoute(
+                                                      builder: (context) {
+                                                return SafeArea(
+                                                  child: AddPlace(
+                                                    currentuserid:
+                                                        widget.currentuserid,
+                                                  ),
+                                                );
+                                              }));
+                                            });
+                                          },
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Container(
+                                              height: 125,
+                                              width: 100,
+                                              decoration: BoxDecoration(
+                                                  color: Color(0x66ffffff),
+                                                  borderRadius:
+                                                      BorderRadius.all(
+                                                          Radius.circular(20))),
+                                              child: Icon(
+                                                Icons.add,
+                                                size: 40,
+                                                color: Colors.white,
+                                              ),
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                    ),
-                                    Row(
-                                      children:ownedplacesw.reversed.toList(),
+                                        Row(
+                                          children:
+                                              ownedplacesw.reversed.toList(),
                                         )
-                                  ],
-                                ),
+                                      ],
+                                    ),
+                                  )
+                                ],
                               )
-                            ],
-                          )
-                        : Container(),
+                            : Container(),
                     Padding(
                       padding:
                           const EdgeInsets.only(top: 30, right: 10, bottom: 10),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          TextButton(onPressed: (){
-                            showDialog<void>(
-                                context: context,
-                                barrierDismissible: false,
-                                builder: (context) => WarningDialog(title: 'Delete Account',text: 'Are you sure you want to delete your\naccount? This will permnently erase\nyour account.',buttontext: 'Delete',action: (){
-                                  final user = FirebaseAuth.instance.currentUser;
-                                  user!.delete();
-                                  usersref.doc(widget.currentuserid).delete();
-                                  Navigator.push(context,
-                                      MaterialPageRoute(
-                                          builder: (context) {
-                                            return SafeArea(child: SignInPage());
-                                          }));
-                                })
-                            );
-                          },
-                            child: Text(
-                            'Delete Account',
-                            style: TextStyle(fontSize: 18, color: Colors.white),
-                          ),),
+                          TextButton(
+                            onPressed: () {
+                              showDialog<void>(
+                                  context: context,
+                                  barrierDismissible: false,
+                                  builder: (context) => WarningDialog(
+                                      title: 'Delete Account',
+                                      text:
+                                          'Are you sure you want to delete your\naccount? This will permnently erase\nyour account.',
+                                      buttontext: 'Delete',
+                                      action: () async {
+                                        try {
+                                          final user = await FirebaseAuth
+                                              .instance.currentUser;
+                                          if(userModel.userType=='owner'){
+                                            List ownedplaces=await usersref.doc(widget.currentuserid).get().then((value) => value.data()!['ownedplaces']);
+                                            ownedplaces.forEach((place) {placesref.doc(place).delete(); });
+                                          }
+                                          await user!.delete();
+                                          await usersref
+                                              .doc(widget.currentuserid)
+                                              .delete();
 
+                                          SharedPreferences pref =await SharedPreferences.getInstance();
+                                          pref.clear();
+                                          Navigator.push(context,
+                                              MaterialPageRoute(
+                                                  builder: (context) {
+                                            return SafeArea(
+                                                child: SignInPage());
+                                          }));
+                                        } catch (e) {
+                                          print(e);
+                                        }
+                                      }));
+                            },
+                            child: Text(
+                              'Delete Account',
+                              style:
+                                  TextStyle(fontSize: 18, color: Colors.white),
+                            ),
+                          ),
                           Icon(Icons.delete, size: 25, color: Colors.white)
                         ],
                       ),
@@ -421,10 +484,12 @@ ownedid.forEach((element) { ownedplacesw.add(RecentWidget(currentplaceID: elemen
     );
   }
 }
-List <RecentWidget> ownedplacesw=[],favoriteplaces=[],recentlyvisited=[];
+
+List<RecentWidget> ownedplacesw = [], favoriteplaces = [], recentlyvisited = [];
+
 class RecentWidget extends StatefulWidget {
-  RecentWidget({this.currentplaceID='',required this.currentuserid});
-  String currentplaceID,currentuserid;
+  RecentWidget({this.currentplaceID = '', required this.currentuserid});
+  String currentplaceID, currentuserid;
 
   @override
   _RecentWidgetState createState() => _RecentWidgetState();
@@ -434,45 +499,61 @@ class _RecentWidgetState extends State<RecentWidget> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future:placesref.doc(widget.currentplaceID).get(),
-      builder: (BuildContext context,AsyncSnapshot snapshot){
-        if (!snapshot.hasData) {
-          return Center(
-            child: CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation(Colors.white),
-            ),
-          );
-        }
-        PlaceModel placeModel=PlaceModel.fromdoc(snapshot.data);
-      return GestureDetector(
-        onTap: () async{
-          String _usertype= await usersref.doc(widget.currentuserid).get().then((value) {return value.data()!['userType'];});
-          setState(() {
-            double cost_per_person=placeModel.cost_per_person;
-            Navigator.push(context, MaterialPageRoute(builder: (context) {
-              return SafeArea(
-                child: _usertype == 'user'? PlaceMainPage(
-                  currentplaceID: widget.currentplaceID,currentuserID: widget.currentuserid,
-                ) :EditPlace(widget.currentplaceID, placeModel.cost_per_person, widget.currentuserid),
-              );            }));
-          });
-        },
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Container(
-            height: 125,
-            width: 100,
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.all(Radius.circular(20)),
-                image: DecorationImage(
-                    image: NetworkImage(placeModel.placepicURl),
-                    colorFilter: new ColorFilter.mode(
-                        Colors.white.withOpacity(0.80), BlendMode.dstATop),
-                    fit: BoxFit.cover)),
-          ),
-        ),
-      );
-      }
-    );
+        future: placesref.doc(widget.currentplaceID).get(),
+        builder: (BuildContext context, AsyncSnapshot snapshot) {
+          if (!snapshot.hasData) {
+            return Center(
+              child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation(Colors.white),
+              ),
+            );
+          }
+          PlaceModel placeModel;
+          try {
+            placeModel = PlaceModel.fromdoc(snapshot.data);
+            return GestureDetector(
+              onTap: () async {
+                String _usertype = await usersref
+                    .doc(widget.currentuserid)
+                    .get()
+                    .then((value) {
+                  return value.data()!['userType'];
+                });
+                setState(() {
+                  double cost_per_person = placeModel.cost_per_person;
+                  Navigator.push(context, MaterialPageRoute(builder: (context) {
+                    return SafeArea(
+                      child: _usertype == 'user'
+                          ? PlaceMainPage(
+                              currentplaceID: widget.currentplaceID,
+                              currentuserID: widget.currentuserid,
+                            )
+                          : EditPlace(widget.currentplaceID,
+                              placeModel.cost_per_person, widget.currentuserid),
+                    );
+                  }));
+                });
+              },
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Container(
+                  height: 125,
+                  width: 100,
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.all(Radius.circular(20)),
+                      image: DecorationImage(
+                          image: NetworkImage(placeModel.placepicURl),
+                          colorFilter: new ColorFilter.mode(
+                              Colors.white.withOpacity(0.80),
+                              BlendMode.dstATop),
+                          fit: BoxFit.cover)),
+                ),
+              ),
+            );
+          } catch (e) {
+            print(e);
+            return Container();
+          }
+        });
   }
 }

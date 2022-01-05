@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:t3leleh_v1/DashboardPage.dart';
+import 'package:t3leleh_v1/GeneralSettings.dart';
 import 'package:t3leleh_v1/Tamplets/Templates.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'lists/Lists.dart';
@@ -145,15 +146,16 @@ class _FilterPageState extends State<FilterPage> {
                 child: Row(
                   children: [
                     Text(
-                      'Total budget : ',
+                      'Total budget :  ',
                       style: TextStyle(color: Colors.white, fontSize: 22),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 9.0),
-                      child: Text(
-                        cost_per_person.round().toString() + ' JD ',
-                        style: TextStyle(color: Colors.white, fontSize: 33),
-                      ),
+                    Text(
+                      currencytoggle ==0?cost_per_person.round().toString() :(cost_per_person.round()*1.4).toStringAsFixed(0),
+                      style: TextStyle(fontSize: 35, color: Colors.white),
+                    ),
+                    Text(
+                      currencytoggle ==0?' JD':' USD',
+                      style: TextStyle(fontSize: 25, color: Colors.white,fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),

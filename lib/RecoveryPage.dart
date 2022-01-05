@@ -110,12 +110,7 @@ class _RecoveryPageState extends State<RecoveryPage> {
                 padding: const EdgeInsets.all(16.0),
                 child: GestureDetector(
                   onTap: () {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) {
-                      return SafeArea(
-                        child: SignInPage(),
-                      );
-                    }));
+                    Navigator.pop(context);
                   },
                   child: FooterText('Already a member ? ', 'Login'),
                 ),

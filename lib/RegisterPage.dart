@@ -41,7 +41,9 @@ class _RegisterPageState extends State<RegisterPage> {
                             elevation: 4,
                             shadowColor: Colors.grey,
                             borderRadius: BorderRadius.all(Radius.circular(90)),
-                            child: AnimatedToggle(['Owner', 'User'], (value) {
+                            child: AnimatedToggle(
+                                _toggleValue==0?true:false,
+                                ['Owner', 'User'], (value) {
                               setState(() {
                                 _toggleValue = value;
                               });
@@ -180,7 +182,8 @@ class _RegisterPageState extends State<RegisterPage> {
                           _regpassword,
                           _regphoneNO,
                           _regcity,
-                          _toggleValue == 0 ? 'owner' : 'user');
+                          _toggleValue == 0 ? 'owner' : 'user',
+                          context);
                       if (isvalid) {
                         Navigator.pop(context);
                         Navigator.pop(context);
@@ -199,16 +202,7 @@ class _RegisterPageState extends State<RegisterPage> {
               padding: const EdgeInsets.all(16.0),
               child: GestureDetector(
                 onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) {
-                        return SafeArea(
-                          child: SignInPage(),
-                        );
-                      },
-                    ),
-                  );
+                  Navigator.pop(context);
                 },
                 child: FooterText(
                   'Already a member ? ',

@@ -17,11 +17,9 @@ class AutoLoginServies extends StatefulWidget {
 }
 
 class _AutoLoginServiesState extends State<AutoLoginServies> {
-  var _email ,_password,_userID;
-  var db;
+  var _email ,_password,_userID,_userType;
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     a();
     Timer(Duration(seconds: 3), (){
@@ -40,7 +38,7 @@ class _AutoLoginServiesState extends State<AutoLoginServies> {
    _email = preferences.getString('email')! ;
    _password = preferences.getString('password')!;
    _userID = preferences.getString('userID')!;
-   db = await usersref.doc(_userID).get();
+   _userType= preferences.getString('userType');
    print(_email+_password+_userID+"========================================================");
  }
 
@@ -53,11 +51,11 @@ class _AutoLoginServiesState extends State<AutoLoginServies> {
         return WelcomePage();
       }else{
         print("dash");
-        return db['userType'] == 'user'
+        return _userType == 'user'
             ? DashboardPage(
           currentuserid: _userID,
         )
-            : db['userType'] == 'owner'
+            : _userType == 'owner'
             ? OwnedPlacesPage(
           currentuserid: _userID,
         )
